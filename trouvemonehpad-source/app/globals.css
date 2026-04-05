@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #FFFBF7;
+  --color-foreground: #2D2A26;
+  --color-warm-50: #FFF8F0;
+  --color-warm-100: #FFEFD9;
+  --color-warm-200: #FFDDB3;
+  --color-warm-300: #FFC98A;
+  --color-warm-400: #FFB461;
+  --color-warm-500: #E8943D;
+  --color-warm-600: #C67A2E;
+  --color-warm-700: #9E5F20;
+  --color-teal-50: #F0F9F7;
+  --color-teal-100: #D4EDE8;
+  --color-teal-200: #A8DDD2;
+  --color-teal-300: #6EC4B3;
+  --color-teal-400: #4BA898;
+  --color-teal-500: #3A8E80;
+  --color-teal-600: #2E7268;
+  --color-teal-700: #235750;
+  --color-sage-50: #F5F7F4;
+  --color-sage-100: #E8ECE5;
+  --color-sage-200: #D0D9CA;
+  --color-sage-300: #B0BFA6;
+  --color-sage-400: #8FA382;
+  --color-sage-500: #708762;
+  --color-rose-50: #FFF5F5;
+  --color-rose-100: #FFE0E0;
+  --color-rose-400: #E8747A;
+  --color-rose-500: #D45A60;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--color-teal-200);
+  color: var(--color-teal-700);
+}
