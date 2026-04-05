@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next";
 import Header from "./components/Header";
 import {
   HOME_TITLE,
@@ -133,6 +134,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
