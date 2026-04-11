@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   title: HOME_TITLE,
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  verification: {
+    google: "YUT4WJQKXjn4mD_-boD6O8SlrwGDjm9y0jE8d4vyu0g",
+  },
   keywords: [
     "maison de retraite",
     "EHPAD",
