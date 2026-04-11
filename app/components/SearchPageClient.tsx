@@ -645,14 +645,12 @@ export default function SearchPageClient({
   const explorationMapResults = hasSearched
     ? null
     : hasActiveFilters && explorationResults.length > 0
-    ? toMapResults(
-        filterMapResults(
-          toMapResults(explorationResults),
-          explorationResults,
-          departmentFilter,
-          gradeFilter,
-          girFilter
-        )
+    ? filterMapResults(
+        toMapResults(explorationResults),
+        explorationResults,
+        departmentFilter,
+        gradeFilter,
+        girFilter
       )
     : null;
 
