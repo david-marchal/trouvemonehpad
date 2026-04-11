@@ -60,6 +60,7 @@ export default function SearchMapClustered({
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const skipNextMoveRef = useRef(false);
+  const isZoomingRef = useRef(false);
   const handleBoundsChange = useEffectEvent((bounds: {
     north: number;
     south: number;
@@ -117,6 +118,8 @@ export default function SearchMapClustered({
 
     map.on("moveend", handleMoveEnd);
     map.on("zoomend", handleMoveEnd);
+    map.on("zoomstart", () => { isZoomingRef.current = true; });
+    map.on("zoomend", () => { isZoomingRef.current = false; });
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -127,9 +130,18 @@ export default function SearchMapClustered({
   }, []);
 
   // Update markers when results change
+  const resultsIdRef = useRef<string>("");
   const updateMarkers = useCallback((data: MapResult[]) => {
+    // Ne pas recréer les markers pendant un zoom — Leaflet.markercluster gère ça nativement
+    if (isZoomingRef.current) return;
+
     const cluster = clusterRef.current;
     if (!cluster) return;
+
+    // Évite les recréations inutiles si les IDs n'ont pas changé
+    const newId = data.map((r) => r.finess_geo).join(",");
+    if (newId === resultsIdRef.current) return;
+    resultsIdRef.current = newId;
 
     cluster.clearLayers();
 
