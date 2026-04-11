@@ -5,7 +5,6 @@ import {
   useCallback,
   useDeferredValue,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -128,6 +127,34 @@ function toMapResults(results: SearchResult[]): MapResult[] {
       latitude: result.latitude!,
       longitude: result.longitude!,
     }));
+}
+
+// Filtre un tableau de MapResult selon les filtres actifs
+function filterMapResults(
+  results: MapResult[],
+  searchResults: SearchResult[],
+  departmentFilter: string,
+  gradeFilter: string,
+  girFilter: string
+): MapResult[] {
+  if (!departmentFilter && !gradeFilter && !girFilter) return results;
+
+  // Construire un Set des finess_geo qui passent les filtres
+  const allowedFiness = new Set(
+    searchResults
+      .filter((r) => {
+        if (departmentFilter && r.department_code !== departmentFilter) return false;
+        if (gradeFilter && r.has_quality_grade !== gradeFilter) return false;
+        if (girFilter) {
+          const key = `dependency_tariff_gir_${girFilter}` as keyof SearchResult;
+          if (r[key] == null) return false;
+        }
+        return true;
+      })
+      .map((r) => r.finess_geo)
+  );
+
+  return results.filter((r) => allowedFiness.has(r.finess_geo));
 }
 
 function QualityBadge({
@@ -323,6 +350,10 @@ export default function SearchPageClient({
   const [departments, setDepartments] = useState<Department[]>([]);
 
   const [results, setResults] = useState<SearchResult[]>(initialResults);
+  // mapResults = résultats bruts de la carte (exploration sans recherche)
+  const [mapResults, setMapResults] = useState<MapResult[]>(() =>
+    toMapResults(initialResults)
+  );
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(
     normalizedInitialQuery.length > 0
@@ -330,13 +361,15 @@ export default function SearchPageClient({
   const [highlightedFiness, setHighlightedFiness] = useState<string | null>(
     null
   );
-  const [mapResults, setMapResults] = useState<MapResult[]>(() =>
-    toMapResults(initialResults)
-  );
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Ref pour stabiliser la référence de displayMapResults
+  // et éviter de recréer les markers Leaflet à chaque render
+  const prevDisplayIdsRef = useRef<string>("");
+  const stableDisplayMapResultsRef = useRef<MapResult[]>([]);
 
   useEffect(() => {
     fetch("/api/ehpads/departments")
@@ -519,6 +552,8 @@ export default function SearchPageClient({
       east: number;
       west: number;
     }) => {
+      // En mode exploration (pas de recherche), on charge les markers de la zone visible
+      // En mode recherche, la carte affiche déjà les résultats filtrés — on ne touche à rien
       if (hasSearched) {
         return;
       }
@@ -548,13 +583,10 @@ export default function SearchPageClient({
     [hasSearched]
   );
 
+  // --- Calcul des résultats filtrés ---
   const filteredResults = results.filter((result) => {
-    if (departmentFilter && result.department_code !== departmentFilter) {
-      return false;
-    }
-    if (gradeFilter && result.has_quality_grade !== gradeFilter) {
-      return false;
-    }
+    if (departmentFilter && result.department_code !== departmentFilter) return false;
+    if (gradeFilter && result.has_quality_grade !== gradeFilter) return false;
     if (girFilter) {
       const key = `dependency_tariff_gir_${girFilter}` as keyof SearchResult;
       if (result[key] == null) return false;
@@ -563,28 +595,76 @@ export default function SearchPageClient({
   });
   const deferredFilteredResults = useDeferredValue(filteredResults);
 
-  // Pour la carte : si des filtres sont actifs, on utilise directement les résultats filtrés.
-  // Sinon on utilise mapResults (qui peut contenir des résultats venant du déplacement de carte).
+  // --- Calcul de displayMapResults ---
+  // Règle : on applique toujours les filtres actifs sur la carte,
+  // que ce soit en mode recherche ou en mode exploration.
+  // On stabilise la référence pour éviter de recréer les markers Leaflet inutilement.
+  const rawDisplayMapResults = (() => {
+    if (hasSearched) {
+      // Mode recherche : filtrer les résultats de recherche
+      return toMapResults(deferredFilteredResults);
+    }
+    // Mode exploration : filtrer les markers de la carte
+    // On n'a pas les champs GIR dans mapResults (légers), donc on filtre
+    // uniquement sur département et note
+    if (departmentFilter || gradeFilter) {
+      return mapResults.filter((r) => {
+        if (departmentFilter) return false; // mapResults n'a pas department_code → skip
+        if (gradeFilter && r.has_quality_grade !== gradeFilter) return false;
+        return true;
+      });
+    }
+    return mapResults;
+  })();
+
+  const newDisplayIds = rawDisplayMapResults.map((r) => r.finess_geo).join(",");
+  if (newDisplayIds !== prevDisplayIdsRef.current) {
+    prevDisplayIdsRef.current = newDisplayIds;
+    stableDisplayMapResultsRef.current = rawDisplayMapResults;
+  }
+  const displayMapResults = stableDisplayMapResultsRef.current;
+
+  // Note: mapResults n'a pas department_code ni dependency_tariff_gir_*
+  // Pour le mode exploration avec filtres, on charge les résultats complets si nécessaire
+  const [explorationResults, setExplorationResults] = useState<SearchResult[]>([]);
   const hasActiveFilters = !!(departmentFilter || gradeFilter || girFilter);
-  const filteredMapResults = useMemo(
-    () => toMapResults(deferredFilteredResults),
-    [deferredFilteredResults]
-  );
-  const displayMapResults = hasSearched
-    ? hasActiveFilters
-      ? filteredMapResults
-      : mapResults
-    : mapResults;
 
   useEffect(() => {
-    if (!hasSearched) {
+    if (hasSearched || !hasActiveFilters) {
+      setExplorationResults([]);
       return;
     }
+    // Charger les résultats complets pour pouvoir filtrer en mode exploration
+    fetch("/api/ehpads")
+      .then((r) => r.json())
+      .then((data: SearchResult[]) => setExplorationResults(data))
+      .catch(() => {});
+  }, [hasSearched, hasActiveFilters]);
 
-    startTransition(() => {
-      setMapResults(toMapResults(deferredFilteredResults));
-    });
-  }, [deferredFilteredResults, hasSearched]);
+  // Recalcul du displayMapResults en mode exploration avec filtres
+  const explorationMapResults = hasSearched
+    ? null
+    : hasActiveFilters && explorationResults.length > 0
+    ? toMapResults(
+        filterMapResults(
+          toMapResults(explorationResults),
+          explorationResults,
+          departmentFilter,
+          gradeFilter,
+          girFilter
+        )
+      )
+    : null;
+
+  const finalDisplayMapResults = explorationMapResults ?? displayMapResults;
+
+  const newFinalIds = finalDisplayMapResults.map((r) => r.finess_geo).join(",");
+  const stableFinalRef = useRef<MapResult[]>(finalDisplayMapResults);
+  const prevFinalIdsRef = useRef<string>(newFinalIds);
+  if (newFinalIds !== prevFinalIdsRef.current) {
+    prevFinalIdsRef.current = newFinalIds;
+    stableFinalRef.current = finalDisplayMapResults;
+  }
 
   return (
     <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
@@ -771,7 +851,7 @@ export default function SearchPageClient({
                         </span>
                       </span>
                     ) : null}
-                    {departmentFilter || gradeFilter || girFilter ? (
+                    {hasActiveFilters ? (
                       <span className="text-teal-600"> (filtré)</span>
                     ) : null}
                   </p>
@@ -842,7 +922,7 @@ export default function SearchPageClient({
 
       <div className="sticky top-[64px] hidden h-[calc(100vh-64px)] w-[45%] md:block">
         <SearchMapClustered
-          results={displayMapResults}
+          results={stableFinalRef.current}
           onBoundsChange={handleBoundsChange}
         />
       </div>

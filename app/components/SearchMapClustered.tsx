@@ -60,7 +60,9 @@ export default function SearchMapClustered({
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const skipNextMoveRef = useRef(false);
-  const isZoomingRef = useRef(false);
+  // Garde l'ID des derniers markers rendus pour éviter les recréations inutiles
+  const lastRenderedIdsRef = useRef<string>("");
+
   const handleBoundsChange = useEffectEvent((bounds: {
     north: number;
     south: number;
@@ -70,7 +72,7 @@ export default function SearchMapClustered({
     onBoundsChange?.(bounds);
   });
 
-  // Initialize map
+  // Initialisation de la carte — une seule fois
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -98,7 +100,6 @@ export default function SearchMapClustered({
     clusterRef.current = cluster;
     mapRef.current = map;
 
-    // Debounced bounds change handler
     const handleMoveEnd = () => {
       if (skipNextMoveRef.current) {
         skipNextMoveRef.current = false;
@@ -118,30 +119,24 @@ export default function SearchMapClustered({
 
     map.on("moveend", handleMoveEnd);
     map.on("zoomend", handleMoveEnd);
-    map.on("zoomstart", () => { isZoomingRef.current = true; });
-    map.on("zoomend", () => { isZoomingRef.current = false; });
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       map.remove();
       mapRef.current = null;
       clusterRef.current = null;
+      lastRenderedIdsRef.current = "";
     };
   }, []);
 
-  // Update markers when results change
-  const resultsIdRef = useRef<string>("");
+  // Mise à jour des markers — seulement quand les IDs changent vraiment
   const updateMarkers = useCallback((data: MapResult[]) => {
-    // Ne pas recréer les markers pendant un zoom — Leaflet.markercluster gère ça nativement
-    if (isZoomingRef.current) return;
-
     const cluster = clusterRef.current;
     if (!cluster) return;
 
-    // Évite les recréations inutiles si les IDs n'ont pas changé
-    const newId = data.map((r) => r.finess_geo).join(",");
-    if (newId === resultsIdRef.current) return;
-    resultsIdRef.current = newId;
+    const newIds = data.map((r) => r.finess_geo).join(",");
+    if (newIds === lastRenderedIdsRef.current) return;
+    lastRenderedIdsRef.current = newIds;
 
     cluster.clearLayers();
 
@@ -176,22 +171,24 @@ export default function SearchMapClustered({
     updateMarkers(results);
   }, [results, updateMarkers]);
 
-  // Fly to results when search results change (from search, not from map drag)
-  const prevResultsRef = useRef<MapResult[]>([]);
+  // Fly-to quand les résultats changent substantiellement (nouvelle recherche)
+  const prevFlyIdsRef = useRef<string>("");
   useEffect(() => {
     const map = mapRef.current;
     if (!map || results.length === 0) return;
 
-    // Only fly if results changed substantially (not from bounds query)
-    const prevIds = new Set(prevResultsRef.current.map((r) => r.finess_geo));
-    const newIds = new Set(results.map((r) => r.finess_geo));
-    const overlap = [...newIds].filter((id) => prevIds.has(id)).length;
-    const overlapRatio = prevIds.size > 0 ? overlap / prevIds.size : 0;
+    const newIds = results.map((r) => r.finess_geo).join(",");
+    if (newIds === prevFlyIdsRef.current) return;
 
-    prevResultsRef.current = results;
+    const prevIdSet = new Set(prevFlyIdsRef.current.split(",").filter(Boolean));
+    prevFlyIdsRef.current = newIds;
 
-    // If >70% overlap, results came from bounds query — don't fly
-    if (overlapRatio > 0.7 && prevIds.size > 5) return;
+    const newIdSet = new Set(results.map((r) => r.finess_geo));
+    const overlap = [...newIdSet].filter((id) => prevIdSet.has(id)).length;
+    const overlapRatio = prevIdSet.size > 0 ? overlap / prevIdSet.size : 0;
+
+    // Si >70% de chevauchement → filtre ou déplacement carte, pas de fly
+    if (overlapRatio > 0.7 && prevIdSet.size > 5) return;
 
     const geoResults = results.filter((r) => r.latitude != null && r.longitude != null);
     if (geoResults.length === 0) return;
@@ -209,7 +206,6 @@ export default function SearchMapClustered({
   return (
     <div className="relative w-full h-full">
       <div ref={containerRef} className="w-full h-full" />
-      {/* Grade legend */}
       <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-sage-200 z-[1000]">
         <div className="flex items-center gap-3 text-xs">
           {(["A", "B", "C", "D"] as const).map((g) => (
