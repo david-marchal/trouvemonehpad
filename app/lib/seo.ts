@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const SITE_NAME = "TrouveMonEHPAD";
-export const SITE_URL = "https://nestrate.nanocorp.app";
+export const SITE_URL = "https://trouvemonehpad.vercel.app";
 export const SITE_TAGLINE = "Trouvez la résidence idéale pour vos proches";
 export const HOME_TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
 export const SITE_DESCRIPTION = SITE_TAGLINE;
