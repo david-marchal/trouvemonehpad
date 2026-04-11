@@ -562,6 +562,15 @@ export default function SearchPageClient({
   });
   const deferredFilteredResults = useDeferredValue(filteredResults);
 
+  // Pour la carte : si des filtres sont actifs, on utilise directement les résultats filtrés.
+  // Sinon on utilise mapResults (qui peut contenir des résultats venant du déplacement de carte).
+  const hasActiveFilters = !!(departmentFilter || gradeFilter || girFilter);
+  const displayMapResults = hasSearched
+    ? hasActiveFilters
+      ? toMapResults(deferredFilteredResults)
+      : mapResults
+    : mapResults;
+
   useEffect(() => {
     if (!hasSearched) {
       return;
@@ -828,7 +837,7 @@ export default function SearchPageClient({
 
       <div className="sticky top-[64px] hidden h-[calc(100vh-64px)] w-[45%] md:block">
         <SearchMapClustered
-          results={mapResults}
+          results={displayMapResults}
           onBoundsChange={handleBoundsChange}
         />
       </div>
