@@ -5,6 +5,7 @@ import {
   useCallback,
   useDeferredValue,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -565,9 +566,13 @@ export default function SearchPageClient({
   // Pour la carte : si des filtres sont actifs, on utilise directement les résultats filtrés.
   // Sinon on utilise mapResults (qui peut contenir des résultats venant du déplacement de carte).
   const hasActiveFilters = !!(departmentFilter || gradeFilter || girFilter);
+  const filteredMapResults = useMemo(
+    () => toMapResults(deferredFilteredResults),
+    [deferredFilteredResults]
+  );
   const displayMapResults = hasSearched
     ? hasActiveFilters
-      ? toMapResults(deferredFilteredResults)
+      ? filteredMapResults
       : mapResults
     : mapResults;
 
