@@ -583,6 +583,38 @@ export default function SearchPageClient({
     [hasSearched]
   );
 
+  // Recherche déclenchée depuis le bouton "Rechercher dans cette zone" sur la carte
+  const handleSearchInZone = useCallback(
+    async (bounds: { north: number; south: number; east: number; west: number }) => {
+      setLoading(true);
+      setHasSearched(true);
+      setHighlightedFiness(null);
+
+      try {
+        const params = new URLSearchParams({
+          north: String(bounds.north),
+          south: String(bounds.south),
+          east: String(bounds.east),
+          west: String(bounds.west),
+        });
+        const response = await fetch(`/api/ehpads?${params.toString()}`);
+        if (!response.ok) throw new Error("Zone search failed");
+
+        const data: SearchResult[] = await response.json();
+        startTransition(() => {
+          setResults(data);
+        });
+      } catch {
+        startTransition(() => {
+          setResults([]);
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
   // --- Calcul des résultats filtrés ---
   const filteredResults = results.filter((result) => {
     if (departmentFilter && result.department_code !== departmentFilter) return false;
@@ -922,6 +954,7 @@ export default function SearchPageClient({
         <SearchMapClustered
           results={stableFinalRef.current}
           onBoundsChange={handleBoundsChange}
+          onSearchInZone={handleSearchInZone}
         />
       </div>
     </div>

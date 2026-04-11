@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useEffectEvent } from "react";
+import { useEffect, useRef, useCallback, useEffectEvent, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -51,17 +51,22 @@ const FRANCE_ZOOM = 6;
 export default function SearchMapClustered({
   results,
   onBoundsChange,
+  onSearchInZone,
 }: {
   results: MapResult[];
   onBoundsChange?: (bounds: { north: number; south: number; east: number; west: number }) => void;
+  onSearchInZone?: (bounds: { north: number; south: number; east: number; west: number }) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const skipNextMoveRef = useRef(false);
-  // Garde l'ID des derniers markers rendus pour éviter les recréations inutiles
   const lastRenderedIdsRef = useRef<string>("");
+  const currentBoundsRef = useRef<{ north: number; south: number; east: number; west: number } | null>(null);
+
+  // Afficher le bouton "Rechercher dans cette zone" quand la carte a bougé
+  const [showSearchZoneBtn, setShowSearchZoneBtn] = useState(false);
 
   const handleBoundsChange = useEffectEvent((bounds: {
     north: number;
@@ -108,12 +113,15 @@ export default function SearchMapClustered({
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         const b = map.getBounds();
-        handleBoundsChange({
+        const bounds = {
           north: b.getNorth(),
           south: b.getSouth(),
           east: b.getEast(),
           west: b.getWest(),
-        });
+        };
+        currentBoundsRef.current = bounds;
+        setShowSearchZoneBtn(true);
+        handleBoundsChange(bounds);
       }, 300);
     };
 
@@ -148,17 +156,28 @@ export default function SearchMapClustered({
         });
 
         const gradeHtml = r.has_quality_grade
-          ? `<span style="display:inline-block;margin-top:4px;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600;color:white;background:${gradeColor(r.has_quality_grade)}">Note ${r.has_quality_grade}</span>`
+          ? `<span style="display:inline-block;margin-top:4px;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600;color:white;background:${gradeColor(r.has_quality_grade)}">Évaluation HAS ${r.has_quality_grade}</span>`
+          : "";
+
+        const capacityHtml = r.capacity_total
+          ? `<span style="display:inline-block;margin-top:3px;font-size:10px;color:#888">${r.capacity_total} places</span>`
           : "";
 
         marker.bindPopup(
-          `<div style="min-width:180px;font-family:system-ui,sans-serif">
-            <strong style="font-size:13px;line-height:1.3;display:block">${r.name}</strong>
-            <span style="font-size:11px;color:#666">${r.city || ""}</span>
-            ${gradeHtml}
-            <br/><a href="/etablissement/${r.finess_geo}" style="font-size:11px;color:#0d9488;text-decoration:none;margin-top:4px;display:inline-block">Voir la fiche →</a>
+          `<div style="min-width:190px;font-family:system-ui,sans-serif;padding:2px 0">
+            <strong style="font-size:13px;line-height:1.4;display:block;color:#1a1a1a">${r.name}</strong>
+            <span style="font-size:11px;color:#888;display:block;margin-top:2px">${r.city || ""}</span>
+            <div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+              ${gradeHtml}
+              ${capacityHtml}
+            </div>
+            <a href="/etablissement/${r.finess_geo}" style="display:inline-block;margin-top:8px;font-size:11px;color:#0d9488;text-decoration:none;font-weight:500">Voir la fiche →</a>
           </div>`,
-          { closeButton: false }
+          {
+            closeButton: false,
+            autoClose: false,
+            closeOnClick: false,
+          }
         );
 
         return marker;
@@ -187,11 +206,13 @@ export default function SearchMapClustered({
     const overlap = [...newIdSet].filter((id) => prevIdSet.has(id)).length;
     const overlapRatio = prevIdSet.size > 0 ? overlap / prevIdSet.size : 0;
 
-    // Si >70% de chevauchement → filtre ou déplacement carte, pas de fly
     if (overlapRatio > 0.7 && prevIdSet.size > 5) return;
 
     const geoResults = results.filter((r) => r.latitude != null && r.longitude != null);
     if (geoResults.length === 0) return;
+
+    // Masquer le bouton zone après un fly programmatique
+    setShowSearchZoneBtn(false);
 
     if (geoResults.length === 1) {
       skipNextMoveRef.current = true;
@@ -203,9 +224,32 @@ export default function SearchMapClustered({
     }
   }, [results]);
 
+  const handleSearchInZoneClick = useCallback(() => {
+    if (!currentBoundsRef.current || !onSearchInZone) return;
+    setShowSearchZoneBtn(false);
+    onSearchInZone(currentBoundsRef.current);
+  }, [onSearchInZone]);
+
   return (
     <div className="relative w-full h-full">
       <div ref={containerRef} className="w-full h-full" />
+
+      {/* Bouton "Rechercher dans cette zone" */}
+      {showSearchZoneBtn && onSearchInZone && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
+          <button
+            onClick={handleSearchInZoneClick}
+            className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-teal-700 shadow-md border border-teal-200 hover:bg-teal-50 transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            Rechercher dans cette zone
+          </button>
+        </div>
+      )}
+
+      {/* Légende */}
       <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-sage-200 z-[1000]">
         <div className="flex items-center gap-3 text-xs">
           {(["A", "B", "C", "D"] as const).map((g) => (
