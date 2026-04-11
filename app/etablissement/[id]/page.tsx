@@ -66,8 +66,8 @@ function legalStatusLabel(status: string | null): string {
 function formatImportantCriteriaRate(rate: number) {
   return new Intl.NumberFormat("fr-FR", {
     style: "percent",
-    maximumSignificantDigits: 2,
-  }).format(rate);
+    maximumFractionDigits: 1,
+  }).format(rate / 100);
 }
 
 function JsonLd({ ehpad }: { ehpad: EhpadDetail }) {
