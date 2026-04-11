@@ -38,6 +38,9 @@ type SearchResult = {
   latitude?: number | null;
   longitude?: number | null;
   distance_km?: number | null;
+  dependency_tariff_gir_12?: number | null;
+  dependency_tariff_gir_34?: number | null;
+  dependency_tariff_gir_56?: number | null;
 };
 
 type MapResult = {
@@ -86,6 +89,13 @@ const GRADE_OPTIONS = [
   { value: "B", label: "B — Bon" },
   { value: "C", label: "C — Suffisant" },
   { value: "D", label: "D — Insuffisant" },
+];
+
+const GIR_OPTIONS = [
+  { value: "", label: "Tous niveaux GIR" },
+  { value: "12", label: "GIR 1-2 — Dépendance totale" },
+  { value: "34", label: "GIR 3-4 — Dépendance partielle" },
+  { value: "56", label: "GIR 5-6 — Dépendance légère" },
 ];
 
 const RESULT_ROW_HEIGHT = 134;
@@ -308,6 +318,7 @@ export default function SearchPageClient({
   const [radiusKm, setRadiusKm] = useState(normalizedInitialRadius);
   const [departmentFilter, setDepartmentFilter] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
+  const [girFilter, setGirFilter] = useState("");
   const [departments, setDepartments] = useState<Department[]>([]);
 
   const [results, setResults] = useState<SearchResult[]>(initialResults);
@@ -543,6 +554,10 @@ export default function SearchPageClient({
     if (gradeFilter && result.has_quality_grade !== gradeFilter) {
       return false;
     }
+    if (girFilter) {
+      const key = `dependency_tariff_gir_${girFilter}` as keyof SearchResult;
+      if (result[key] == null) return false;
+    }
     return true;
   });
   const deferredFilteredResults = useDeferredValue(filteredResults);
@@ -680,6 +695,24 @@ export default function SearchPageClient({
               ))}
             </select>
 
+            <select
+              value={girFilter}
+              onChange={(event) => setGirFilter(event.target.value)}
+              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-lg border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-teal-400 focus:outline-none"
+              style={{
+                backgroundImage:
+                  'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%239ca3af\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 8px center",
+              }}
+            >
+              {GIR_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
             <div className="ml-auto flex items-center gap-2">
               <span className="text-xs text-foreground/50">Rayon</span>
               <input
@@ -724,7 +757,7 @@ export default function SearchPageClient({
                         </span>
                       </span>
                     ) : null}
-                    {departmentFilter || gradeFilter ? (
+                    {departmentFilter || gradeFilter || girFilter ? (
                       <span className="text-teal-600"> (filtré)</span>
                     ) : null}
                   </p>

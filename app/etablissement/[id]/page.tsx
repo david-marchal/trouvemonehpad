@@ -276,61 +276,74 @@ export default async function EtablissementPage({ params }: Props) {
             )}
 
             {/* Pricing */}
-            {(ehpad.accommodation_price_single || ehpad.dependency_tariff_gir_56) && (
+            {(ehpad.accommodation_price_single || ehpad.accommodation_price_double || ehpad.dependency_tariff_gir_56 || ehpad.dependency_tariff_gir_34 || ehpad.dependency_tariff_gir_12) && (
               <section className="bg-white rounded-xl border border-sage-200 p-6">
                 <h2 className="text-lg font-semibold mb-4">Tarifs</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-                  {ehpad.accommodation_price_single != null && (
-                    <div>
-                      <p className="text-foreground/45 text-xs uppercase tracking-wide">
-                        Hébergement (simple)
-                      </p>
-                      <p className="mt-1 font-medium">
-                        {ehpad.accommodation_price_single.toFixed(2)} €/jour
-                      </p>
+
+                {/* Hébergement */}
+                {(ehpad.accommodation_price_single != null || ehpad.accommodation_price_double != null) && (
+                  <div className="mb-5">
+                    <p className="text-xs uppercase tracking-wide text-foreground/45 mb-2">Hébergement</p>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      {ehpad.accommodation_price_single != null && (
+                        <div className="bg-sage-50 rounded-lg p-3">
+                          <p className="text-foreground/50 text-xs">Chambre individuelle</p>
+                          <p className="mt-1 font-semibold text-base">{ehpad.accommodation_price_single.toFixed(2)} €<span className="text-xs font-normal text-foreground/50">/jour</span></p>
+                          <p className="text-foreground/40 text-xs mt-0.5">≈ {(ehpad.accommodation_price_single * 30).toFixed(0)} €/mois</p>
+                        </div>
+                      )}
+                      {ehpad.accommodation_price_double != null && (
+                        <div className="bg-sage-50 rounded-lg p-3">
+                          <p className="text-foreground/50 text-xs">Chambre double</p>
+                          <p className="mt-1 font-semibold text-base">{ehpad.accommodation_price_double.toFixed(2)} €<span className="text-xs font-normal text-foreground/50">/jour</span></p>
+                          <p className="text-foreground/40 text-xs mt-0.5">≈ {(ehpad.accommodation_price_double * 30).toFixed(0)} €/mois</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {ehpad.accommodation_price_double != null && (
-                    <div>
-                      <p className="text-foreground/45 text-xs uppercase tracking-wide">
-                        Hébergement (double)
-                      </p>
-                      <p className="mt-1 font-medium">
-                        {ehpad.accommodation_price_double.toFixed(2)} €/jour
-                      </p>
+                  </div>
+                )}
+
+                {/* Tarifs dépendance GIR */}
+                {(ehpad.dependency_tariff_gir_12 != null || ehpad.dependency_tariff_gir_34 != null || ehpad.dependency_tariff_gir_56 != null) && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs uppercase tracking-wide text-foreground/45">Tarif dépendance (GIR)</p>
+                      <span className="text-xs text-foreground/35 italic">financé en partie par l&apos;APA</span>
                     </div>
-                  )}
-                  {ehpad.dependency_tariff_gir_56 != null && (
-                    <div>
-                      <p className="text-foreground/45 text-xs uppercase tracking-wide">
-                        Dépendance GIR 5-6
-                      </p>
-                      <p className="mt-1 font-medium">
-                        {ehpad.dependency_tariff_gir_56.toFixed(2)} €/jour
-                      </p>
+                    <div className="space-y-2 text-sm">
+                      {ehpad.dependency_tariff_gir_12 != null && (
+                        <div className="flex items-center gap-3 rounded-lg border border-rose-100 bg-rose-50 px-4 py-3">
+                          <div className="flex-1">
+                            <p className="font-medium text-rose-800">GIR 1 &amp; 2</p>
+                            <p className="text-xs text-rose-600 mt-0.5">Dépendance totale — aide permanente</p>
+                          </div>
+                          <p className="font-semibold text-rose-800 whitespace-nowrap">{ehpad.dependency_tariff_gir_12.toFixed(2)} €/jour</p>
+                        </div>
+                      )}
+                      {ehpad.dependency_tariff_gir_34 != null && (
+                        <div className="flex items-center gap-3 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3">
+                          <div className="flex-1">
+                            <p className="font-medium text-amber-800">GIR 3 &amp; 4</p>
+                            <p className="text-xs text-amber-600 mt-0.5">Dépendance partielle — aide quotidienne</p>
+                          </div>
+                          <p className="font-semibold text-amber-800 whitespace-nowrap">{ehpad.dependency_tariff_gir_34.toFixed(2)} €/jour</p>
+                        </div>
+                      )}
+                      {ehpad.dependency_tariff_gir_56 != null && (
+                        <div className="flex items-center gap-3 rounded-lg border border-teal-100 bg-teal-50 px-4 py-3">
+                          <div className="flex-1">
+                            <p className="font-medium text-teal-800">GIR 5 &amp; 6</p>
+                            <p className="text-xs text-teal-600 mt-0.5">Dépendance légère — aide ponctuelle</p>
+                          </div>
+                          <p className="font-semibold text-teal-800 whitespace-nowrap">{ehpad.dependency_tariff_gir_56.toFixed(2)} €/jour</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {ehpad.dependency_tariff_gir_34 != null && (
-                    <div>
-                      <p className="text-foreground/45 text-xs uppercase tracking-wide">
-                        Dépendance GIR 3-4
-                      </p>
-                      <p className="mt-1 font-medium">
-                        {ehpad.dependency_tariff_gir_34.toFixed(2)} €/jour
-                      </p>
-                    </div>
-                  )}
-                  {ehpad.dependency_tariff_gir_12 != null && (
-                    <div>
-                      <p className="text-foreground/45 text-xs uppercase tracking-wide">
-                        Dépendance GIR 1-2
-                      </p>
-                      <p className="mt-1 font-medium">
-                        {ehpad.dependency_tariff_gir_12.toFixed(2)} €/jour
-                      </p>
-                    </div>
-                  )}
-                </div>
+                    <p className="mt-3 text-xs text-foreground/40">
+                      Le GIR (Groupe Iso-Ressources) mesure le niveau de dépendance de 1 (très dépendant) à 6 (autonome). Il détermine le tarif dépendance et l&apos;éligibilité à l&apos;APA (Allocation Personnalisée d&apos;Autonomie).
+                    </p>
+                  </div>
+                )}
               </section>
             )}
 

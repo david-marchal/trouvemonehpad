@@ -99,6 +99,9 @@ export type EhpadSearchResult = {
   latitude?: number | null;
   longitude?: number | null;
   distance_km?: number | null;
+  dependency_tariff_gir_12?: number | null;
+  dependency_tariff_gir_34?: number | null;
+  dependency_tariff_gir_56?: number | null;
 };
 
 export type BoundingBox = {
@@ -143,10 +146,6 @@ function createBoundingBox(lat: number, lng: number, radiusKm: number): Bounding
   };
 }
 
-/**
- * Try to geocode a query by looking up known city coordinates from our EHPAD data.
- * Returns the center lat/lng of matching establishments if found.
- */
 async function geocodeFromEhpadData(
   term: string
 ): Promise<{ lat: number; lng: number } | null> {
@@ -181,13 +180,11 @@ export async function searchEhpads(
     return [];
   }
 
-  // If radius search is requested, try to geocode and search by distance
   if (radiusKm > 0) {
     const center = await geocodeFromEhpadData(term);
     if (center) {
       return searchByRadius(center.lat, center.lng, radiusKm, options);
     }
-    // Fall through to text search if geocoding fails
   }
 
   const likePattern = `%${term}%`;
@@ -196,80 +193,88 @@ export async function searchEhpads(
   if (bounds) {
     const rows = await sql<EhpadSearchResult[]>`
       SELECT
-        finess_geo,
-        name,
-        city,
-        postal_code,
-        department_code,
-        department_name,
-        address_line,
-        capacity_total,
-        has_quality_grade,
-        has_score_100::float8 AS has_score_100,
-        has_eval_date::text AS has_eval_date,
-        latitude::float8 AS latitude,
-        longitude::float8 AS longitude
-      FROM ehpad_establishments
+        e.finess_geo,
+        e.name,
+        e.city,
+        e.postal_code,
+        e.department_code,
+        e.department_name,
+        e.address_line,
+        e.capacity_total,
+        e.has_quality_grade,
+        e.has_score_100::float8 AS has_score_100,
+        e.has_eval_date::text AS has_eval_date,
+        e.latitude::float8 AS latitude,
+        e.longitude::float8 AS longitude,
+        p.dependency_tariff_gir_12::float8 AS dependency_tariff_gir_12,
+        p.dependency_tariff_gir_34::float8 AS dependency_tariff_gir_34,
+        p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56
+      FROM ehpad_establishments e
+      LEFT JOIN ehpad_pricing p ON p.finess_geo = e.finess_geo
       WHERE
-        latitude IS NOT NULL
-        AND longitude IS NOT NULL
-        AND latitude BETWEEN ${bounds.south} AND ${bounds.north}
-        AND longitude BETWEEN ${bounds.west} AND ${bounds.east}
+        e.latitude IS NOT NULL
+        AND e.longitude IS NOT NULL
+        AND e.latitude BETWEEN ${bounds.south} AND ${bounds.north}
+        AND e.longitude BETWEEN ${bounds.west} AND ${bounds.east}
         AND (
-          unaccent(lower(name)) LIKE unaccent(lower(${likePattern}))
-          OR unaccent(lower(city)) LIKE unaccent(lower(${likePattern}))
-          OR unaccent(lower(department_name)) LIKE unaccent(lower(${likePattern}))
-          OR upper(department_code) = upper(${term})
-          OR postal_code = ${term}
-          OR finess_geo = ${term}
+          unaccent(lower(e.name)) LIKE unaccent(lower(${likePattern}))
+          OR unaccent(lower(e.city)) LIKE unaccent(lower(${likePattern}))
+          OR unaccent(lower(e.department_name)) LIKE unaccent(lower(${likePattern}))
+          OR upper(e.department_code) = upper(${term})
+          OR e.postal_code = ${term}
+          OR e.finess_geo = ${term}
         )
       ORDER BY
-        CASE has_quality_grade
+        CASE e.has_quality_grade
           WHEN 'A' THEN 4
           WHEN 'B' THEN 3
           WHEN 'C' THEN 2
           WHEN 'D' THEN 1
           ELSE 0
-      END DESC,
-        has_score_100 DESC NULLS LAST,
-        name ASC
+        END DESC,
+        e.has_score_100 DESC NULLS LAST,
+        e.name ASC
     `;
     return rows.map((row) => repairRecordStrings(row));
   }
 
   const rows = await sql<EhpadSearchResult[]>`
     SELECT
-      finess_geo,
-      name,
-      city,
-      postal_code,
-      department_code,
-      department_name,
-      address_line,
-      capacity_total,
-      has_quality_grade,
-      has_score_100::float8 AS has_score_100,
-      has_eval_date::text AS has_eval_date,
-      latitude::float8 AS latitude,
-      longitude::float8 AS longitude
-    FROM ehpad_establishments
+      e.finess_geo,
+      e.name,
+      e.city,
+      e.postal_code,
+      e.department_code,
+      e.department_name,
+      e.address_line,
+      e.capacity_total,
+      e.has_quality_grade,
+      e.has_score_100::float8 AS has_score_100,
+      e.has_eval_date::text AS has_eval_date,
+      e.latitude::float8 AS latitude,
+      e.longitude::float8 AS longitude,
+      p.dependency_tariff_gir_12::float8 AS dependency_tariff_gir_12,
+      p.dependency_tariff_gir_34::float8 AS dependency_tariff_gir_34,
+      p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56
+    FROM ehpad_establishments e
+    LEFT JOIN ehpad_pricing p ON p.finess_geo = e.finess_geo
     WHERE
-      unaccent(lower(name)) LIKE unaccent(lower(${likePattern}))
-      OR unaccent(lower(city)) LIKE unaccent(lower(${likePattern}))
-      OR unaccent(lower(department_name)) LIKE unaccent(lower(${likePattern}))
-      OR upper(department_code) = upper(${term})
-      OR postal_code = ${term}
-      OR finess_geo = ${term}
+      unaccent(lower(e.name)) LIKE unaccent(lower(${likePattern}))
+      OR unaccent(lower(e.city)) LIKE unaccent(lower(${likePattern}))
+      OR unaccent(lower(e.department_name)) LIKE unaccent(lower(${likePattern}))
+      OR upper(e.department_code) = upper(${term})
+      OR e.postal_code = ${term}
+      OR e.finess_geo = ${term}
     ORDER BY
-      CASE has_quality_grade
+      CASE e.has_quality_grade
         WHEN 'A' THEN 4
         WHEN 'B' THEN 3
         WHEN 'C' THEN 2
         WHEN 'D' THEN 1
         ELSE 0
-    END DESC,
-      has_score_100 DESC NULLS LAST,
-      name ASC
+      END DESC,
+      e.has_score_100 DESC NULLS LAST,
+      e.name ASC
   `;
   return rows.map((row) => repairRecordStrings(row));
 }
@@ -288,30 +293,34 @@ export async function searchByRadius(
   const rows = await sql<EhpadSearchResult[]>`
     SELECT * FROM (
       SELECT
-        finess_geo,
-        name,
-        city,
-        postal_code,
-        department_code,
-        department_name,
-        address_line,
-        capacity_total,
-        has_quality_grade,
-        has_score_100::float8 AS has_score_100,
-        has_eval_date::text AS has_eval_date,
-        latitude::float8 AS latitude,
-        longitude::float8 AS longitude,
+        e.finess_geo,
+        e.name,
+        e.city,
+        e.postal_code,
+        e.department_code,
+        e.department_name,
+        e.address_line,
+        e.capacity_total,
+        e.has_quality_grade,
+        e.has_score_100::float8 AS has_score_100,
+        e.has_eval_date::text AS has_eval_date,
+        e.latitude::float8 AS latitude,
+        e.longitude::float8 AS longitude,
+        p.dependency_tariff_gir_12::float8 AS dependency_tariff_gir_12,
+        p.dependency_tariff_gir_34::float8 AS dependency_tariff_gir_34,
+        p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56,
         (6371 * acos(
-          LEAST(1, cos(radians(${lat})) * cos(radians(latitude)) *
-          cos(radians(longitude) - radians(${lng})) +
-          sin(radians(${lat})) * sin(radians(latitude)))
+          LEAST(1, cos(radians(${lat})) * cos(radians(e.latitude)) *
+          cos(radians(e.longitude) - radians(${lng})) +
+          sin(radians(${lat})) * sin(radians(e.latitude)))
         )) AS distance_km
-      FROM ehpad_establishments
+      FROM ehpad_establishments e
+      LEFT JOIN ehpad_pricing p ON p.finess_geo = e.finess_geo
       WHERE
-        latitude IS NOT NULL
-        AND longitude IS NOT NULL
-        AND latitude BETWEEN ${bounds.south} AND ${bounds.north}
-        AND longitude BETWEEN ${bounds.west} AND ${bounds.east}
+        e.latitude IS NOT NULL
+        AND e.longitude IS NOT NULL
+        AND e.latitude BETWEEN ${bounds.south} AND ${bounds.north}
+        AND e.longitude BETWEEN ${bounds.west} AND ${bounds.east}
     ) sub
     WHERE distance_km <= ${safeRadius}
     ORDER BY distance_km ASC
