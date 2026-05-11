@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .filter(Boolean)
     .join(", ");
   const gradeText = ehpad.has_quality_grade
-    ? `Note HAS ${ehpad.has_quality_grade}`
+    ? `Évaluation HAS ${ehpad.has_quality_grade}`
     : "Non évalué";
   const locationLabel = ehpad.city
     ? `${ehpad.city}${ehpad.department_name ? `, ${ehpad.department_name}` : ""}`
@@ -54,13 +54,48 @@ const gradeConfig: Record<string, { bg: string; text: string; border: string; la
   D: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200", label: "Insuffisant" },
 };
 
-function legalStatusLabel(status: string | null): string {
-  if (!status) return "Non renseigné";
+// Statut juridique — label + couleur de badge
+function legalStatusConfig(status: string | null): { label: string; bg: string; text: string; border: string } {
+  if (!status) return { label: "Non renseigné", bg: "bg-sage-50", text: "text-foreground/50", border: "border-sage-200" };
   const s = status.toLowerCase();
-  if (s.includes("public")) return "Public";
-  if (s.includes("priv") && s.includes("lucratif") && !s.includes("non")) return "Privé commercial";
-  if (s.includes("priv") || s.includes("association") || s.includes("non lucratif")) return "Privé non lucratif";
-  return status;
+  if (s.includes("public")) return { label: "Public", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" };
+  if (s.includes("priv") && s.includes("lucratif") && !s.includes("non"))
+    return { label: "Privé commercial", bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200" };
+  if (s.includes("priv") || s.includes("association") || s.includes("non lucratif"))
+    return { label: "Privé non lucratif", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" };
+  return { label: status, bg: "bg-sage-50", text: "text-foreground/50", border: "border-sage-200" };
+}
+
+function legalStatusLabel(status: string | null): string {
+  return legalStatusConfig(status).label;
+}
+
+// Indicateur d'ancienneté de l'évaluation HAS
+function evalFreshnessIndicator(evalDateStr: string | null): {
+  label: string;
+  sublabel: string;
+  dot: string;
+} {
+  if (!evalDateStr) return { label: "", sublabel: "", dot: "" };
+  const evalDate = new Date(evalDateStr);
+  const now = new Date();
+  const diffYears = (now.getTime() - evalDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+
+  if (diffYears < 2) return {
+    label: "Récente",
+    sublabel: "Évaluation de moins de 2 ans",
+    dot: "bg-emerald-500",
+  };
+  if (diffYears < 4) return {
+    label: "À renouveler",
+    sublabel: "Évaluation de 2 à 4 ans",
+    dot: "bg-amber-400",
+  };
+  return {
+    label: "Ancienne",
+    sublabel: "Évaluation de plus de 4 ans",
+    dot: "bg-rose-400",
+  };
 }
 
 function formatImportantCriteriaRate(rate: number) {
@@ -119,7 +154,7 @@ function JsonLd({ ehpad }: { ehpad: EhpadDetail }) {
       : {}),
     description: `${ehpad.name} est un EHPAD situé à ${fullAddress}. ${
       ehpad.has_quality_grade
-        ? `Note HAS ${ehpad.has_quality_grade}.`
+        ? `Évaluation HAS ${ehpad.has_quality_grade}.`
         : "Évaluation HAS non publiée."
     }`,
   };
@@ -142,6 +177,8 @@ export default async function EtablissementPage({ params }: Props) {
     .join(", ");
   const grade = ehpad.has_quality_grade;
   const gc = grade ? gradeConfig[grade] : null;
+  const lsc = legalStatusConfig(ehpad.legal_status);
+  const freshness = evalFreshnessIndicator(ehpad.has_eval_date);
 
   return (
     <>
@@ -178,8 +215,9 @@ export default async function EtablissementPage({ params }: Props) {
                   {ehpad.category_label}
                 </span>
               )}
-              <span className="bg-sage-50 text-foreground/60 rounded-full px-3 py-1">
-                {legalStatusLabel(ehpad.legal_status)}
+              {/* Statut juridique coloré */}
+              <span className={`rounded-full px-3 py-1 border font-medium ${lsc.bg} ${lsc.text} ${lsc.border}`}>
+                {lsc.label}
               </span>
               {ehpad.capacity_total && (
                 <span className="bg-sage-50 text-foreground/60 rounded-full px-3 py-1">
@@ -195,7 +233,7 @@ export default async function EtablissementPage({ params }: Props) {
               className={`flex-shrink-0 rounded-2xl border ${gc.bg} ${gc.border} px-6 py-5 text-center min-w-[140px]`}
             >
               <p className={`text-xs uppercase tracking-wide font-medium ${gc.text}`}>
-                Note HAS
+                Évaluation HAS
               </p>
               <p className={`text-5xl font-bold mt-1 ${gc.text}`}>{grade}</p>
               {ehpad.has_score_100 != null && (
@@ -208,7 +246,7 @@ export default async function EtablissementPage({ params }: Props) {
           ) : (
             <div className="flex-shrink-0 rounded-2xl bg-sage-100 px-6 py-5 text-center min-w-[140px]">
               <p className="text-xs uppercase tracking-wide text-foreground/45">
-                Note HAS
+                Évaluation HAS
               </p>
               <p className="mt-2 text-sm font-medium text-foreground/60">
                 Non publié
@@ -221,12 +259,11 @@ export default async function EtablissementPage({ params }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column - Details */}
           <div className="lg:col-span-2 space-y-6">
+
             {/* HAS Evaluation details */}
             {ehpad.has_quality_grade && (
               <section className="bg-white rounded-xl border border-sage-200 p-6">
-                <h2 className="text-lg font-semibold mb-4">
-                  Évaluation HAS
-                </h2>
+                <h2 className="text-lg font-semibold mb-4">Évaluation HAS</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                   {ehpad.has_eval_date && (
                     <div>
@@ -239,6 +276,13 @@ export default async function EtablissementPage({ params }: Props) {
                           { day: "numeric", month: "long", year: "numeric" }
                         )}
                       </p>
+                      {/* Indicateur de fraîcheur */}
+                      {freshness.dot && (
+                        <div className="mt-1.5 flex items-center gap-1.5">
+                          <span className={`inline-block w-2 h-2 rounded-full ${freshness.dot}`} />
+                          <span className="text-xs text-foreground/50">{freshness.label}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                   {ehpad.has_evaluator_name && (
@@ -272,11 +316,17 @@ export default async function EtablissementPage({ params }: Props) {
                     </div>
                   )}
                 </div>
+                {/* Explication ancienneté */}
+                {freshness.sublabel && (
+                  <p className="mt-4 text-xs text-foreground/40 border-t border-sage-100 pt-3">
+                    {freshness.sublabel}. Les évaluations HAS sont renouvelées tous les 2 ans.
+                  </p>
+                )}
               </section>
             )}
 
             {/* Pricing */}
-            {(ehpad.accommodation_price_single || ehpad.accommodation_price_double || ehpad.dependency_tariff_gir_56 || ehpad.dependency_tariff_gir_34 || ehpad.dependency_tariff_gir_12) && (
+            {(ehpad.accommodation_price_single != null || ehpad.accommodation_price_double != null || ehpad.dependency_tariff_gir_12 != null || ehpad.dependency_tariff_gir_34 != null || ehpad.dependency_tariff_gir_56 != null) && (
               <section className="bg-white rounded-xl border border-sage-200 p-6">
                 <h2 className="text-lg font-semibold mb-4">Tarifs</h2>
 
@@ -372,7 +422,11 @@ export default async function EtablissementPage({ params }: Props) {
                   <dt className="text-foreground/45 text-xs uppercase tracking-wide">
                     Statut
                   </dt>
-                  <dd className="mt-1">{legalStatusLabel(ehpad.legal_status)}</dd>
+                  <dd className="mt-1">
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border ${lsc.bg} ${lsc.text} ${lsc.border}`}>
+                      {lsc.label}
+                    </span>
+                  </dd>
                 </div>
                 {ehpad.capacity_total && (
                   <div>
@@ -390,6 +444,12 @@ export default async function EtablissementPage({ params }: Props) {
                     <dd className="mt-1">{ehpad.category_label}</dd>
                   </div>
                 )}
+                <div>
+                  <dt className="text-foreground/45 text-xs uppercase tracking-wide">
+                    Numéro FINESS
+                  </dt>
+                  <dd className="mt-1 font-mono text-foreground/60">{ehpad.finess_geo}</dd>
+                </div>
               </dl>
             </section>
 
