@@ -1,0 +1,42 @@
+name: Mise à jour mensuelle de la base EHPAD
+
+on:
+  schedule:
+    # Le 1er de chaque mois à 3h00 UTC
+    - cron: '0 3 1 * *'
+  # Permet de lancer manuellement depuis GitHub Actions
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Installation des dépendances
+        run: npm ci
+
+      - name: Installation des dépendances manquantes du script
+        run: npm install proj4 xlsx
+
+      - name: Import des données EHPAD
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run import:ehpad-fr
+
+      - name: Notification de succès
+        if: success()
+        run: echo "✅ Base de données EHPAD mise à jour avec succès le $(date '+%d/%m/%Y')"
+
+      - name: Notification d'échec
+        if: failure()
+        run: echo "❌ Échec de la mise à jour de la base de données EHPAD"
