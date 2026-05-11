@@ -70,7 +70,7 @@ function legalStatusLabel(status: string | null): string {
   return legalStatusConfig(status).label;
 }
 
-// Indicateur d'ancienneté de l'évaluation HAS
+// Indicateur d'ancienneté de l'évaluation HAS (cycle de 5 ans)
 function evalFreshnessIndicator(evalDateStr: string | null): {
   label: string;
   sublabel: string;
@@ -81,19 +81,19 @@ function evalFreshnessIndicator(evalDateStr: string | null): {
   const now = new Date();
   const diffYears = (now.getTime() - evalDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
 
-  if (diffYears < 2) return {
+  if (diffYears < 2.5) return {
     label: "Récente",
-    sublabel: "Évaluation de moins de 2 ans",
+    sublabel: "Évaluation de moins de 2 ans et demi",
     dot: "bg-emerald-500",
   };
-  if (diffYears < 4) return {
-    label: "À renouveler",
-    sublabel: "Évaluation de 2 à 4 ans",
+  if (diffYears < 5) return {
+    label: "À renouveler bientôt",
+    sublabel: "Évaluation de plus de 2 ans et demi",
     dot: "bg-amber-400",
   };
   return {
-    label: "Ancienne",
-    sublabel: "Évaluation de plus de 4 ans",
+    label: "À renouveler",
+    sublabel: "Évaluation de plus de 5 ans",
     dot: "bg-rose-400",
   };
 }
@@ -319,7 +319,7 @@ export default async function EtablissementPage({ params }: Props) {
                 {/* Explication ancienneté */}
                 {freshness.sublabel && (
                   <p className="mt-4 text-xs text-foreground/40 border-t border-sage-100 pt-3">
-                    {freshness.sublabel}. Les évaluations HAS sont renouvelées tous les 2 ans.
+                    {freshness.sublabel}. Les évaluations HAS sont renouvelées tous les 5 ans.
                   </p>
                 )}
               </section>
