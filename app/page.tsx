@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "./components/SearchBar";
 import { GUIDES } from "./lib/guides";
@@ -44,18 +45,9 @@ export default async function Home() {
         }}
       />
 
-      <section className="relative overflow-hidden border-b border-sage-200">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 w-full sm:w-3/4 bg-cover bg-center opacity-40 sm:opacity-100"
-          style={{
-            backgroundImage: "url(/hero-contours.svg)",
-            maskImage: "linear-gradient(to right, transparent 0%, black 55%)",
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, black 55%)",
-          }}
-        />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-14 sm:pt-20 sm:pb-20">
+      <section className="border-b border-sage-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-10 lg:gap-14 items-center">
+          <div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08] max-w-3xl">
             {stats
               ? `Les évaluations officielles de ${formatNumber(stats.total)} EHPAD, enfin lisibles.`
@@ -73,7 +65,7 @@ export default async function Home() {
               établissement.
             </p>
           </div>
-          <p className="mt-10 text-sm text-foreground/65 max-w-xl">
+          <p className="mt-8 text-sm text-foreground/65 max-w-xl">
             {stats?.updatedAt
               ? `Données mises à jour le ${formatDateFr(stats.updatedAt)}, `
               : "Données mises à jour chaque mois, "}
@@ -82,6 +74,18 @@ export default async function Home() {
             {stats ? ` (${formatNumber(stats.evaluated)} établissements évalués)` : ""}{" "}
             et les tarifs de la CNSA.
           </p>
+          </div>
+
+          <div className="relative order-first lg:order-none h-56 sm:h-72 lg:h-[30rem] overflow-hidden rounded-2xl bg-sage-100">
+            <Image
+              src="/hero.jpg"
+              alt="Les mains de deux personnes âgées, l'une posée sur l'autre"
+              fill
+              priority
+              sizes="(min-width: 1024px) 40vw, 100vw"
+              className="object-cover object-[50%_55%]"
+            />
+          </div>
         </div>
       </section>
 
