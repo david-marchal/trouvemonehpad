@@ -77,6 +77,7 @@ export type NearbyAmenitiesResult = {
   radius: number;
   source: "live" | "cache" | "stale" | "unavailable";
   error?: "missing_coordinates" | "timeout" | "upstream";
+  detail?: string;
 };
 
 const OVERPASS_URLS = [
@@ -191,6 +192,18 @@ async function fetchNearbyAmenitiesFromOverpass(
   return [...presentCategories];
 }
 
+function describeError(error: unknown) {
+  const list = error instanceof AggregateError ? error.errors : [error];
+  return list
+    .map((e) => {
+      if (!(e instanceof Error)) return String(e);
+      const cause = (e as { cause?: unknown }).cause;
+      return cause instanceof Error ? `${e.message} (${cause.message})` : e.message;
+    })
+    .join(" | ")
+    .slice(0, 500);
+}
+
 function isTimeoutError(error: unknown) {
   if (error instanceof AggregateError) {
     return error.errors.every(
@@ -253,6 +266,7 @@ export async function getNearbyAmenities(params: {
       radius,
       source: "unavailable",
       error: isTimeoutError(error) ? "timeout" : "upstream",
+      detail: describeError(error),
     };
   }
 }

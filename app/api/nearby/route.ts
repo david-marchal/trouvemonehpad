@@ -30,8 +30,9 @@ export async function GET(request: NextRequest) {
     },
     {
       headers: {
-        "Cache-Control":
-          "public, s-maxage=43200, stale-while-revalidate=86400",
+        "Cache-Control": result.available
+          ? "public, s-maxage=43200, stale-while-revalidate=86400"
+          : "no-store",
       },
     }
   );
