@@ -14,8 +14,8 @@ import {
   serializeJsonLd,
 } from "./lib/seo";
 
-// Les chiffres sont recalculés au plus une fois par jour.
-export const revalidate = 86400;
+// Les chiffres sont recalculés au plus une fois par heure.
+export const revalidate = 3600;
 
 export const metadata: Metadata = buildPageMetadata({
   title: HOME_TITLE,
