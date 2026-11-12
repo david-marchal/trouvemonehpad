@@ -82,10 +82,11 @@ export type NearbyAmenitiesResult = {
 
 const OVERPASS_URLS = [
   "https://overpass-api.de/api/interpreter",
+  "https://overpass.openstreetmap.fr/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
 ];
-const OVERPASS_TIMEOUT_MS = 9000;
+const OVERPASS_TIMEOUT_MS = 9500;
 const USER_AGENT = "TrouveMonEHPAD/1.0 (https://trouvemonehpad.vercel.app)";
 const DEFAULT_RADIUS_METERS = 1000;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 12;
@@ -110,7 +111,7 @@ function buildOverpassQuery(lat: number, lng: number, radius: number) {
   const fragments = AMENITY_CHECKLIST.flatMap((category) =>
     category.matchers.map(
       ({ tag, value }) =>
-        `nwr["${tag}"="${value}"](around:${radius},${lat},${lng});`
+        `nw["${tag}"="${value}"](around:${radius},${lat},${lng});`
     )
   );
 
@@ -145,7 +146,6 @@ async function queryOverpass(
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
       "User-Agent": USER_AGENT,
     },
     body: `data=${encodeURIComponent(query)}`,
