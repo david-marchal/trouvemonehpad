@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getEhpadSitemapEntries } from "./lib/ehpad";
+import { GUIDES } from "./lib/guides";
 import { absoluteUrl } from "./lib/seo";
 
 const generatedAt = new Date();
@@ -24,6 +25,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.9,
     },
+    {
+      url: absoluteUrl("/guides"),
+      lastModified: generatedAt,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    ...GUIDES.map((g) => ({
+      url: absoluteUrl(`/guides/${g.slug}`),
+      lastModified: generatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
   ];
 
   const establishments = await getEhpadSitemapEntries();

@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import { getEhpadByFiness } from "@/app/lib/ehpad";
 import type { EhpadDetail } from "@/app/lib/ehpad";
 import EstablishmentMapWrapper from "@/app/components/EstablishmentMapWrapper";
+import CostCalculator from "@/app/components/CostCalculator";
+import { plainSummary } from "@/app/lib/summary";
 import NearbyAmenities, {
   NearbyAmenitiesLoading,
 } from "@/app/components/NearbyAmenities";
@@ -255,6 +257,21 @@ export default async function EtablissementPage({ params }: Props) {
           )}
         </div>
 
+        {/* Résumé en langage clair */}
+        <section className="mb-8 rounded-xl border border-sage-200 bg-white p-6">
+          <h2 className="text-xl mb-2">En clair</h2>
+          <div className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
+            {plainSummary(ehpad).map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
+          <p className="mt-3 text-sm text-foreground/65">
+            <Link href="/guides/lire-une-evaluation-has" className="text-teal-600 underline underline-offset-2">
+              Comment lire une évaluation HAS
+            </Link>
+          </p>
+        </section>
+
         {/* Main content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column - Details */}
@@ -397,6 +414,17 @@ export default async function EtablissementPage({ params }: Props) {
               </section>
             )}
 
+            {ehpad.accommodation_price_single != null && (
+              <CostCalculator
+                pricing={{
+                  accommodation_price_single: ehpad.accommodation_price_single,
+                  dependency_tariff_gir_12: ehpad.dependency_tariff_gir_12,
+                  dependency_tariff_gir_34: ehpad.dependency_tariff_gir_34,
+                  dependency_tariff_gir_56: ehpad.dependency_tariff_gir_56,
+                }}
+              />
+            )}
+
             {/* General info */}
             <section className="bg-white rounded-xl border border-sage-200 p-6">
               <h2 className="text-lg font-semibold mb-4">
@@ -481,6 +509,12 @@ export default async function EtablissementPage({ params }: Props) {
 
               {/* Quick actions */}
               <div className="bg-white rounded-xl border border-sage-200 p-5 space-y-3">
+                <Link
+                  href={`/comparer?ids=${ehpad.finess_geo}`}
+                  className="block w-full text-center text-sm font-medium rounded-lg px-4 py-2.5 bg-teal-600 text-white hover:bg-teal-700 transition-colors"
+                >
+                  Comparer avec d&apos;autres EHPAD
+                </Link>
                 {ehpad.city && (
                   <Link
                     href={`/search?q=${encodeURIComponent(ehpad.city)}&radius=20`}

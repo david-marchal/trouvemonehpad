@@ -327,3 +327,10 @@ export async function searchByRadius(
   `;
   return rows.map((row) => repairRecordStrings(row));
 }
+
+export async function getEhpadsByFiness(
+  ids: string[]
+): Promise<EhpadDetail[]> {
+  const rows = await Promise.all(ids.map((id) => getEhpadByFiness(id)));
+  return rows.filter((row): row is EhpadDetail => row !== null);
+}

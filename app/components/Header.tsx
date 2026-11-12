@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import Logo from "./Logo";
 
 const NAV_LINKS = [
   { href: "/", label: "Accueil" },
   { href: "/search", label: "Rechercher" },
+  { href: "/guides", label: "Guides" },
+  { href: "/comparer", label: "Comparer" },
   { href: "/about", label: "À propos" },
 ];
 
@@ -15,13 +18,8 @@ export default function Header() {
   return (
     <header className="border-b border-sage-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl" role="img" aria-label="maison de retraite">
-            🏡
-          </span>
-          <span className="text-xl font-bold text-teal-700 group-hover:text-teal-600 transition-colors">
-            TrouveMonEHPAD
-          </span>
+        <Link href="/" aria-label="TrouveMonEHPAD, accueil" className="hover:opacity-80 transition-opacity">
+          <Logo />
         </Link>
 
         {/* Desktop nav */}
@@ -67,7 +65,7 @@ export default function Header() {
       {/* Mobile menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          menuOpen ? "max-h-64 border-t border-sage-200" : "max-h-0"
+          menuOpen ? "max-h-80 border-t border-sage-200" : "max-h-0"
         }`}
       >
         <div className="px-4 py-3 space-y-1 bg-white">
