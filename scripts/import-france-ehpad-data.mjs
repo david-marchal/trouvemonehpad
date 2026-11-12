@@ -43,6 +43,44 @@ async function resolveLatestFinessUrl(fallbackUrl) {
   }
 }
 
+// Les prix sont ressaisis chaque année par les établissements : la photo du mois
+// de janvier est presque vide. On prend donc la photo annuelle la plus récente
+// (la plus complète) ET le dernier export mensuel, puis on garde, pour chaque
+// établissement, la ligne la plus récente (voir parsePricing).
+const PRICING_DATASET_SLUG =
+  "prix-hebergement-et-tarifs-dependance-des-ehpad-donnees-brutes";
+
+async function resolvePricingUrls(fallbackUrl) {
+  try {
+    const response = await fetch(
+      `https://www.data.gouv.fr/api/1/datasets/${PRICING_DATASET_SLUG}/`,
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const dataset = await response.json();
+    const annual = [];
+    const monthly = [];
+    for (const r of dataset.resources ?? []) {
+      const title = String(r.title ?? "");
+      let m = title.match(/cnsa_export_prix_ehpad_(\d{4})_brute\.csv$/);
+      if (m) annual.push({ key: Number(m[1]), url: r.url, title });
+      m = title.match(/cnsa_export_prix_ehpad_(\d{6})_brute\.csv$/);
+      if (m) monthly.push({ key: Number(m[1]), url: r.url, title });
+    }
+    annual.sort((a, b) => b.key - a.key);
+    monthly.sort((a, b) => b.key - a.key);
+    const chosen = [annual[0], monthly[0]].filter(Boolean);
+    if (!chosen.length) throw new Error("aucun fichier de prix reconnu");
+    for (const c of chosen) console.log(`CNSA prix : ${c.title}`);
+    // Ordre : annuel d'abord, mensuel ensuite (le mensuel gagne à date égale).
+    return chosen.map((c) => c.url);
+  } catch (error) {
+    console.warn(
+      `CNSA prix : impossible de lister les fichiers (${error.message}), utilisation du fichier enregistré, qui peut être très incomplet.`,
+    );
+    return [fallbackUrl];
+  }
+}
+
 const EHPAD_CATEGORY_CODE = "500";
 const EHPAD_DISCIPLINE_CODE = "924";
 const FULL_TIME_ACTIVITY_CODE = "11";
@@ -335,8 +373,10 @@ function parseHasEvaluations(buffer) {
   };
 }
 
-function parsePricing(csvText) {
-  const rows = readCsvRows(csvText);
+function parsePricing(csvTexts) {
+  const rows = (Array.isArray(csvTexts) ? csvTexts : [csvTexts]).flatMap((text) =>
+    readCsvRows(text),
+  );
   const pricingByFiness = new Map();
 
   for (const row of rows) {
@@ -361,7 +401,15 @@ function parsePricing(csvText) {
     const currentUpdatedAt = currentPricing?.sourceUpdatedAt?.getTime() ?? -Infinity;
     const nextUpdatedAt = nextPricing.sourceUpdatedAt?.getTime() ?? -Infinity;
 
-    if (!currentPricing || nextUpdatedAt >= currentUpdatedAt) {
+    if (!currentPricing) {
+      pricingByFiness.set(finessGeo, nextPricing);
+    } else if (nextUpdatedAt >= currentUpdatedAt) {
+      // Ligne la plus récente, complétée par l'ancienne pour les champs vides.
+      for (const key of Object.keys(nextPricing)) {
+        if (nextPricing[key] == null && currentPricing[key] != null) {
+          nextPricing[key] = currentPricing[key];
+        }
+      }
       pricingByFiness.set(finessGeo, nextPricing);
     }
   }
@@ -476,7 +524,11 @@ async function main() {
     fetchBuffer(DATASETS.hasEvaluations),
     resolveLatestFinessUrl(DATASETS.finessEstablishments).then(fetchLatin1Text),
     resolveLatestFinessUrl(DATASETS.finessEquipments).then(fetchLatin1Text),
-    fetchBuffer(DATASETS.pricing).then((buffer) => buffer.toString("utf8")),
+    resolvePricingUrls(DATASETS.pricing).then((urls) =>
+      Promise.all(
+        urls.map((url) => fetchBuffer(url).then((buffer) => buffer.toString("utf8"))),
+      ),
+    ),
   ]);
 
   console.log("Parsing FINESS establishments...");
