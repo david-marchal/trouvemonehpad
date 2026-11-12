@@ -68,7 +68,7 @@ export default async function Home() {
           <p className="mt-8 text-sm text-foreground/65 max-w-xl">
             {stats?.updatedAt
               ? `Données mises à jour le ${formatDateFr(stats.updatedAt)}, `
-              : "Données mises à jour chaque mois, "}
+              : "Données mises à jour chaque jour, "}
             à partir de trois bases publiques : l&apos;annuaire FINESS, les
             évaluations de la HAS
             {stats ? ` (${formatNumber(stats.evaluated)} établissements évalués)` : ""}{" "}

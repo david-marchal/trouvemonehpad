@@ -15,6 +15,34 @@ const DATASETS = {
     "https://www.data.gouv.fr/api/1/datasets/r/ca5315b0-f966-4a43-bd8b-434b0ddbdc3d",
 };
 
+// Les fichiers FINESS sont republiés régulièrement sous une nouvelle adresse datée.
+// On demande à data.gouv.fr l'adresse la plus récente ; si l'appel échoue,
+// on retombe sur l'adresse ci-dessus et on le signale dans les logs.
+async function resolveLatestFinessUrl(fallbackUrl) {
+  try {
+    const parts = new URL(fallbackUrl).pathname.split("/");
+    const datasetSlug = parts[2];
+    const fileFragment = parts[4].replace(/-stock-.*$/, "-stock");
+    const response = await fetch(
+      `https://www.data.gouv.fr/api/1/datasets/${datasetSlug}/`,
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const dataset = await response.json();
+    const candidates = (dataset.resources ?? [])
+      .filter((r) => typeof r.url === "string" && r.url.includes(fileFragment))
+      .sort((a, b) => String(b.last_modified).localeCompare(String(a.last_modified)));
+    if (!candidates.length) throw new Error("aucune ressource correspondante");
+    const latest = candidates[0].url;
+    console.log(`FINESS : adresse la plus récente utilisée (${latest})`);
+    return latest;
+  } catch (error) {
+    console.warn(
+      `FINESS : impossible de trouver l'adresse la plus récente (${error.message}), utilisation de l'adresse enregistrée, qui peut dater.`,
+    );
+    return fallbackUrl;
+  }
+}
+
 const EHPAD_CATEGORY_CODE = "500";
 const EHPAD_DISCIPLINE_CODE = "924";
 const FULL_TIME_ACTIVITY_CODE = "11";
@@ -446,8 +474,8 @@ async function main() {
   console.log("Fetching official datasets...");
   const [hasBuffer, establishmentsText, equipmentsText, pricingText] = await Promise.all([
     fetchBuffer(DATASETS.hasEvaluations),
-    fetchLatin1Text(DATASETS.finessEstablishments),
-    fetchLatin1Text(DATASETS.finessEquipments),
+    resolveLatestFinessUrl(DATASETS.finessEstablishments).then(fetchLatin1Text),
+    resolveLatestFinessUrl(DATASETS.finessEquipments).then(fetchLatin1Text),
     fetchBuffer(DATASETS.pricing).then((buffer) => buffer.toString("utf8")),
   ]);
 

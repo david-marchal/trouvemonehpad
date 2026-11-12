@@ -1,9 +1,9 @@
-name: Mise à jour mensuelle de la base EHPAD
+name: Mise à jour quotidienne de la base EHPAD
 
 on:
   schedule:
-    # Le 1er de chaque mois à 3h00 UTC
-    - cron: '0 3 1 * *'
+    # Tous les jours à 3h17 UTC
+    - cron: '17 3 * * *'
   # Permet de lancer manuellement depuis GitHub Actions
   workflow_dispatch:
 
@@ -19,7 +19,7 @@ jobs:
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Installation des dépendances
