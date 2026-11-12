@@ -7,6 +7,7 @@ import type { EhpadDetail } from "@/app/lib/ehpad";
 import EstablishmentMapWrapper from "@/app/components/EstablishmentMapWrapper";
 import CostCalculator from "@/app/components/CostCalculator";
 import { plainSummary } from "@/app/lib/summary";
+import { aideSociale, AIDE_SOCIALE_LABEL } from "@/app/lib/aide-sociale";
 import NearbyAmenities, {
   NearbyAmenitiesLoading,
 } from "@/app/components/NearbyAmenities";
@@ -224,6 +225,17 @@ export default async function EtablissementPage({ params }: Props) {
               {ehpad.capacity_total && (
                 <span className="bg-sage-50 text-foreground/60 rounded-full px-3 py-1">
                   {ehpad.capacity_total} places
+                </span>
+              )}
+              {aideSociale(ehpad.mft_code) !== "inconnu" && (
+                <span
+                  className={`rounded-full px-3 py-1 border font-medium ${
+                    aideSociale(ehpad.mft_code) === "oui"
+                      ? "bg-teal-50 text-teal-700 border-teal-200"
+                      : "bg-sage-50 text-foreground/60 border-sage-200"
+                  }`}
+                >
+                  {AIDE_SOCIALE_LABEL[aideSociale(ehpad.mft_code)]}
                 </span>
               )}
             </div>

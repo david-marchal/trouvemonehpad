@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { EhpadDetail } from "../lib/ehpad";
 import { GIR_OPTIONS, estimateMonthly, euros, type GirGroup } from "../lib/cost";
 import CompareAdd from "./CompareAdd";
+import { aideSociale } from "../lib/aide-sociale";
 
 function href(ids: string[]) {
   return ids.length ? `/comparer?ids=${ids.join(",")}` : "/comparer";
@@ -52,6 +53,13 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
     {
       label: "Places",
       cell: (e) => e.capacity_total ?? "Non renseigné",
+    },
+    {
+      label: "Aide sociale",
+      cell: (e) => {
+        const a = aideSociale(e.mft_code);
+        return a === "oui" ? "Habilité" : a === "non" ? "Non habilité" : "Non précisé";
+      },
     },
     {
       label: "Chambre seule, par jour",

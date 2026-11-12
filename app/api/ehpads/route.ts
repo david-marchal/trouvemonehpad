@@ -100,6 +100,7 @@ export async function GET(request: NextRequest) {
         city,
         has_quality_grade,
         capacity_total,
+        mft_code,
         latitude::float8 AS latitude,
         longitude::float8 AS longitude
       FROM ehpad_establishments
@@ -121,6 +122,7 @@ export async function GET(request: NextRequest) {
       city,
       has_quality_grade,
       capacity_total,
+        mft_code,
       latitude::float8 AS latitude,
       longitude::float8 AS longitude
     FROM ehpad_establishments

@@ -1,4 +1,5 @@
 import type { EhpadDetail } from "./ehpad";
+import { aideSociale } from "./aide-sociale";
 
 function formatAge(from: Date, now: Date) {
   const months =
@@ -51,6 +52,17 @@ export function plainSummary(e: EhpadDetail, now = new Date()): string[] {
     );
   } else {
     out.push("Le prix de la chambre n'est pas publié dans nos sources.");
+  }
+
+  const as = aideSociale(e.mft_code);
+  if (as === "oui") {
+    out.push(
+      "Il est habilité à l'aide sociale : une personne aux revenus modestes peut y demander l'aide sociale à l'hébergement. Le nombre de places concernées n'est pas public, demandez-le à l'établissement."
+    );
+  } else if (as === "non") {
+    out.push(
+      "Il n'est pas habilité à l'aide sociale : l'aide sociale à l'hébergement n'y est en général pas accordée. Renseignez-vous auprès du conseil départemental avant de signer."
+    );
   }
 
   return out;

@@ -1,5 +1,6 @@
 "use client";
 
+import { aideSociale } from "../lib/aide-sociale";
 import {
   startTransition,
   useCallback,
@@ -25,6 +26,7 @@ const SearchMapClustered = dynamic(() => import("./SearchMapClustered"), {
 
 type SearchResult = {
   finess_geo: string;
+  mft_code?: string | null;
   name: string;
   city: string | null;
   postal_code: string | null;
@@ -135,9 +137,11 @@ function filterMapResults(
   searchResults: SearchResult[],
   departmentFilter: string,
   gradeFilter: string,
-  girFilter: string
+  girFilter: string,
+  aideSocialeFilter: string
 ): MapResult[] {
-  if (!departmentFilter && !gradeFilter && !girFilter) return results;
+  if (!departmentFilter && !gradeFilter && !girFilter && !aideSocialeFilter)
+    return results;
 
   // Construire un Set des finess_geo qui passent les filtres
   const allowedFiness = new Set(
@@ -149,6 +153,7 @@ function filterMapResults(
           const key = `dependency_tariff_gir_${girFilter}` as keyof SearchResult;
           if (r[key] == null) return false;
         }
+        if (aideSocialeFilter && aideSociale(r.mft_code) !== "oui") return false;
         return true;
       })
       .map((r) => r.finess_geo)
@@ -347,6 +352,7 @@ export default function SearchPageClient({
   const [departmentFilter, setDepartmentFilter] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
   const [girFilter, setGirFilter] = useState("");
+  const [aideSocialeFilter, setAideSocialeFilter] = useState("");
   const [departments, setDepartments] = useState<Department[]>([]);
 
   const [results, setResults] = useState<SearchResult[]>(initialResults);
@@ -623,6 +629,7 @@ export default function SearchPageClient({
       const key = `dependency_tariff_gir_${girFilter}` as keyof SearchResult;
       if (result[key] == null) return false;
     }
+    if (aideSocialeFilter && aideSociale(result.mft_code) !== "oui") return false;
     return true;
   });
   const deferredFilteredResults = useDeferredValue(filteredResults);
@@ -659,7 +666,12 @@ export default function SearchPageClient({
   // Note: mapResults n'a pas department_code ni dependency_tariff_gir_*
   // Pour le mode exploration avec filtres, on charge les résultats complets si nécessaire
   const [explorationResults, setExplorationResults] = useState<SearchResult[]>([]);
-  const hasActiveFilters = !!(departmentFilter || gradeFilter || girFilter);
+  const hasActiveFilters = !!(
+    departmentFilter ||
+    gradeFilter ||
+    girFilter ||
+    aideSocialeFilter
+  );
 
   useEffect(() => {
     if (hasSearched || !hasActiveFilters) {
@@ -682,7 +694,8 @@ export default function SearchPageClient({
         explorationResults,
         departmentFilter,
         gradeFilter,
-        girFilter
+        girFilter,
+        aideSocialeFilter
       )
     : null;
 
@@ -836,6 +849,18 @@ export default function SearchPageClient({
                 </option>
               ))}
             </select>
+
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-lg border border-sage-200 bg-white px-2.5 text-xs text-foreground/70">
+              <input
+                type="checkbox"
+                checked={aideSocialeFilter === "oui"}
+                onChange={(event) =>
+                  setAideSocialeFilter(event.target.checked ? "oui" : "")
+                }
+                className="h-4 w-4 accent-teal-500"
+              />
+              Habilité aide sociale
+            </label>
 
             <div className="ml-auto flex items-center gap-2">
               <span className="text-xs text-foreground/50">Rayon</span>
