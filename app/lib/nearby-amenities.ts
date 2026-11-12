@@ -79,7 +79,13 @@ export type NearbyAmenitiesResult = {
   error?: "missing_coordinates" | "timeout" | "upstream";
 };
 
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+const OVERPASS_URLS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+];
+const OVERPASS_TIMEOUT_MS = 9000;
+const USER_AGENT = "TrouveMonEHPAD/1.0 (https://trouvemonehpad.vercel.app)";
 const DEFAULT_RADIUS_METERS = 1000;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 12;
 const nearbyAmenitiesCache = new Map<
@@ -108,11 +114,11 @@ function buildOverpassQuery(lat: number, lng: number, radius: number) {
   );
 
   return `
-    [out:json][timeout:5];
+    [out:json][timeout:8];
     (
       ${fragments.join("\n      ")}
     );
-    out center tags;
+    out tags;
   `;
 }
 
@@ -130,27 +136,52 @@ function getAmenityChecklistKey(tags: Record<string, string> | undefined) {
   return null;
 }
 
-async function fetchNearbyAmenitiesFromOverpass(
-  lat: number,
-  lng: number,
-  radius: number
-) {
-  const response = await fetch(OVERPASS_URL, {
+async function queryOverpass(
+  url: string,
+  query: string
+): Promise<OverpassElement[]> {
+  const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `data=${encodeURIComponent(buildOverpassQuery(lat, lng, radius))}`,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+      "User-Agent": USER_AGENT,
+    },
+    body: `data=${encodeURIComponent(query)}`,
     cache: "no-store",
-    signal: AbortSignal.timeout(5000),
+    signal: AbortSignal.timeout(OVERPASS_TIMEOUT_MS),
   });
 
   if (!response.ok) {
     throw new Error(`Overpass request failed with status ${response.status}`);
   }
 
-  const payload = (await response.json()) as { elements?: OverpassElement[] };
+  const payload = (await response.json()) as {
+    elements?: OverpassElement[];
+    remark?: string;
+  };
+
+  // Overpass répond parfois 200 avec une erreur d'exécution et aucun résultat.
+  if (payload.remark && /error|timed out|out of memory/i.test(payload.remark)) {
+    throw new Error(`Overpass remark: ${payload.remark}`);
+  }
+
+  return payload.elements ?? [];
+}
+
+async function fetchNearbyAmenitiesFromOverpass(
+  lat: number,
+  lng: number,
+  radius: number
+) {
+  const query = buildOverpassQuery(lat, lng, radius);
+  // Les serveurs sont interrogés en parallèle : le premier qui répond gagne.
+  const elements = await Promise.any(
+    OVERPASS_URLS.map((url) => queryOverpass(url, query))
+  );
   const presentCategories = new Set<AmenityChecklistKey>();
 
-  for (const element of payload.elements ?? []) {
+  for (const element of elements) {
     const key = getAmenityChecklistKey(element.tags);
     if (key) {
       presentCategories.add(key);
@@ -161,6 +192,11 @@ async function fetchNearbyAmenitiesFromOverpass(
 }
 
 function isTimeoutError(error: unknown) {
+  if (error instanceof AggregateError) {
+    return error.errors.every(
+      (e) => e instanceof Error && e.name === "TimeoutError"
+    );
+  }
   return error instanceof Error && error.name === "TimeoutError";
 }
 
