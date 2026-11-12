@@ -44,8 +44,18 @@ export default async function Home() {
         }}
       />
 
-      <section className="border-b border-sage-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-14 sm:pt-20 sm:pb-20">
+      <section className="relative overflow-hidden border-b border-sage-200">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-full sm:w-3/4 bg-cover bg-center opacity-40 sm:opacity-100"
+          style={{
+            backgroundImage: "url(/hero-contours.svg)",
+            maskImage: "linear-gradient(to right, transparent 0%, black 55%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 55%)",
+          }}
+        />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-14 sm:pt-20 sm:pb-20">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08] max-w-3xl">
             {stats
               ? `Les évaluations officielles de ${formatNumber(stats.total)} EHPAD, enfin lisibles.`
