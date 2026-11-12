@@ -1,6 +1,7 @@
 "use client";
 
 import { aideSociale } from "../lib/aide-sociale";
+import { PRICE_RANGES, priceInRange } from "../lib/cost";
 import {
   startTransition,
   useCallback,
@@ -27,6 +28,7 @@ const SearchMapClustered = dynamic(() => import("./SearchMapClustered"), {
 type SearchResult = {
   finess_geo: string;
   mft_code?: string | null;
+  accommodation_price_single?: number | null;
   name: string;
   city: string | null;
   postal_code: string | null;
@@ -138,9 +140,16 @@ function filterMapResults(
   departmentFilter: string,
   gradeFilter: string,
   girFilter: string,
-  aideSocialeFilter: string
+  aideSocialeFilter: string,
+  priceFilter: string
 ): MapResult[] {
-  if (!departmentFilter && !gradeFilter && !girFilter && !aideSocialeFilter)
+  if (
+    !departmentFilter &&
+    !gradeFilter &&
+    !girFilter &&
+    !aideSocialeFilter &&
+    !priceFilter
+  )
     return results;
 
   // Construire un Set des finess_geo qui passent les filtres
@@ -154,6 +163,7 @@ function filterMapResults(
           if (r[key] == null) return false;
         }
         if (aideSocialeFilter && aideSociale(r.mft_code) !== "oui") return false;
+        if (!priceInRange(r.accommodation_price_single, priceFilter)) return false;
         return true;
       })
       .map((r) => r.finess_geo)
@@ -353,6 +363,7 @@ export default function SearchPageClient({
   const [gradeFilter, setGradeFilter] = useState("");
   const [girFilter, setGirFilter] = useState("");
   const [aideSocialeFilter, setAideSocialeFilter] = useState("");
+  const [priceFilter, setPriceFilter] = useState("");
   const [departments, setDepartments] = useState<Department[]>([]);
 
   const [results, setResults] = useState<SearchResult[]>(initialResults);
@@ -630,6 +641,7 @@ export default function SearchPageClient({
       if (result[key] == null) return false;
     }
     if (aideSocialeFilter && aideSociale(result.mft_code) !== "oui") return false;
+    if (!priceInRange(result.accommodation_price_single, priceFilter)) return false;
     return true;
   });
   const deferredFilteredResults = useDeferredValue(filteredResults);
@@ -670,7 +682,8 @@ export default function SearchPageClient({
     departmentFilter ||
     gradeFilter ||
     girFilter ||
-    aideSocialeFilter
+    aideSocialeFilter ||
+    priceFilter
   );
 
   useEffect(() => {
@@ -679,7 +692,7 @@ export default function SearchPageClient({
       return;
     }
     // Charger les résultats complets pour pouvoir filtrer en mode exploration
-    fetch("/api/ehpads")
+    fetch("/api/ehpads?details=1")
       .then((r) => r.json())
       .then((data: SearchResult[]) => setExplorationResults(data))
       .catch(() => {});
@@ -695,7 +708,8 @@ export default function SearchPageClient({
         departmentFilter,
         gradeFilter,
         girFilter,
-        aideSocialeFilter
+        aideSocialeFilter,
+        priceFilter
       )
     : null;
 
@@ -846,6 +860,26 @@ export default function SearchPageClient({
               {GIR_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={priceFilter}
+              onChange={(event) => setPriceFilter(event.target.value)}
+              aria-label="Prix mensuel de la chambre seule"
+              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-lg border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-teal-400 focus:outline-none"
+              style={{
+                backgroundImage:
+                  'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%239ca3af\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 8px center",
+              }}
+            >
+              <option value="">Chambre seule / mois</option>
+              {PRICE_RANGES.map((range) => (
+                <option key={range.value} value={range.value}>
+                  {range.label}
                 </option>
               ))}
             </select>

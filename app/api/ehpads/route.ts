@@ -114,6 +114,35 @@ export async function GET(request: NextRequest) {
     return jsonUtf8(results.map((row) => repairRecordStrings(row)));
   }
 
+  // Mode exploration avec filtres : toutes les lignes avec département et tarifs
+  if (params.get("details") === "1") {
+    const detailed = await sql`
+      SELECT
+        e.finess_geo,
+        e.name,
+        e.city,
+        e.postal_code,
+        e.department_code,
+        e.department_name,
+        e.address_line,
+        e.capacity_total,
+        e.mft_code,
+        e.has_quality_grade,
+        e.has_score_100::float8 AS has_score_100,
+        e.has_eval_date::text AS has_eval_date,
+        e.latitude::float8 AS latitude,
+        e.longitude::float8 AS longitude,
+        p.accommodation_price_single::float8 AS accommodation_price_single,
+        p.dependency_tariff_gir_12::float8 AS dependency_tariff_gir_12,
+        p.dependency_tariff_gir_34::float8 AS dependency_tariff_gir_34,
+        p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56
+      FROM ehpad_establishments e
+      LEFT JOIN ehpad_pricing p ON p.finess_geo = e.finess_geo
+      WHERE e.latitude IS NOT NULL AND e.longitude IS NOT NULL
+    `;
+    return jsonUtf8(detailed.map((row) => repairRecordStrings(row)));
+  }
+
   // Default: return all markers (lightweight)
   const results = await sql`
     SELECT

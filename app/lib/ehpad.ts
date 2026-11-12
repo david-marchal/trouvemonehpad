@@ -105,6 +105,7 @@ export type EhpadSearchResult = {
   dependency_tariff_gir_12?: number | null;
   dependency_tariff_gir_34?: number | null;
   dependency_tariff_gir_56?: number | null;
+  accommodation_price_single?: number | null;
 };
 
 export type BoundingBox = {
@@ -212,7 +213,8 @@ export async function searchEhpads(
         e.longitude::float8 AS longitude,
         p.dependency_tariff_gir_12::float8 AS dependency_tariff_gir_12,
         p.dependency_tariff_gir_34::float8 AS dependency_tariff_gir_34,
-        p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56
+        p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56,
+        p.accommodation_price_single::float8 AS accommodation_price_single
       FROM ehpad_establishments e
       LEFT JOIN ehpad_pricing p ON p.finess_geo = e.finess_geo
       WHERE
@@ -260,7 +262,8 @@ export async function searchEhpads(
       e.longitude::float8 AS longitude,
       p.dependency_tariff_gir_12::float8 AS dependency_tariff_gir_12,
       p.dependency_tariff_gir_34::float8 AS dependency_tariff_gir_34,
-      p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56
+      p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56,
+        p.accommodation_price_single::float8 AS accommodation_price_single
     FROM ehpad_establishments e
     LEFT JOIN ehpad_pricing p ON p.finess_geo = e.finess_geo
     WHERE
@@ -315,6 +318,7 @@ export async function searchByRadius(
         p.dependency_tariff_gir_12::float8 AS dependency_tariff_gir_12,
         p.dependency_tariff_gir_34::float8 AS dependency_tariff_gir_34,
         p.dependency_tariff_gir_56::float8 AS dependency_tariff_gir_56,
+        p.accommodation_price_single::float8 AS accommodation_price_single,
         (6371 * acos(
           LEAST(1, cos(radians(${lat})) * cos(radians(e.latitude)) *
           cos(radians(e.longitude) - radians(${lng})) +

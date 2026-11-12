@@ -61,3 +61,22 @@ export function euros(n: number) {
     maximumFractionDigits: 0,
   }).format(n);
 }
+
+export const PRICE_RANGES: { value: string; label: string; min: number; max: number }[] = [
+  { value: "lt2000", label: "Moins de 2 000 €", min: 0, max: 2000 },
+  { value: "2000-2500", label: "2 000 à 2 500 €", min: 2000, max: 2500 },
+  { value: "2500-3000", label: "2 500 à 3 000 €", min: 2500, max: 3000 },
+  { value: "3000-3500", label: "3 000 à 3 500 €", min: 3000, max: 3500 },
+  { value: "gt3500", label: "Plus de 3 500 €", min: 3500, max: Infinity },
+];
+
+/** Prix mensuel de la chambre seule (mois de 30 jours) dans la plage choisie ?
+ *  Un prix inconnu ne passe jamais le filtre. */
+export function priceInRange(dailyPrice: number | null | undefined, rangeValue: string) {
+  if (!rangeValue) return true;
+  if (dailyPrice == null) return false;
+  const range = PRICE_RANGES.find((r) => r.value === rangeValue);
+  if (!range) return true;
+  const monthly = dailyPrice * DAYS_PER_MONTH;
+  return monthly >= range.min && monthly < range.max;
+}
