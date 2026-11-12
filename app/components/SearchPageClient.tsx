@@ -722,12 +722,12 @@ export default function SearchPageClient({
                 onChange={(event) => handleSearchInput(event.target.value)}
                 onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                 placeholder="Ville, code postal ou nom..."
-                className="flex-1 bg-transparent px-3 py-3 text-sm text-foreground outline-none placeholder:text-foreground/35"
+                className="min-w-0 flex-1 bg-transparent px-3 py-3 text-base text-foreground outline-none placeholder:text-foreground/35"
                 autoComplete="off"
               />
               <button
                 type="submit"
-                className="mr-1.5 min-h-[44px] cursor-pointer rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-600 active:bg-teal-700"
+                className="mr-1.5 min-h-[44px] shrink-0 cursor-pointer rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-600 active:bg-teal-700"
               >
                 Rechercher
               </button>

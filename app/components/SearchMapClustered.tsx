@@ -211,6 +211,11 @@ export default function SearchMapClustered({
     const geoResults = results.filter((r) => r.latitude != null && r.longitude != null);
     if (geoResults.length === 0) return;
 
+    // Sur téléphone la carte est masquée (taille 0) : Leaflet ne sait pas
+    // calculer le déplacement et fait planter toute la page. On ne bouge pas.
+    const mapSize = map.getSize();
+    if (mapSize.x === 0 || mapSize.y === 0) return;
+
     // Masquer le bouton zone après un fly programmatique
     setShowSearchZoneBtn(false);
 
