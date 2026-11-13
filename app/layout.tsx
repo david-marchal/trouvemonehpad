@@ -10,6 +10,7 @@ import {
   SITE_NAME,
   SITE_URL,
 } from "./lib/seo";
+import { CONTACT_EMAIL } from "./lib/site-config";
 import "./globals.css";
 
 const atkinson = Atkinson_Hyperlegible_Next({
@@ -83,6 +84,8 @@ function Footer() {
                 ["/comparer", "Comparer des EHPAD"],
                 ["/guides", "Guides pour les familles"],
                 ["/about", "À propos"],
+                ...(CONTACT_EMAIL ? [["/contact", "Contact"]] : []),
+                ["/mentions-legales", "Mentions légales"],
               ].map(([href, label]) => (
                 <li key={href}>
                   <Link
