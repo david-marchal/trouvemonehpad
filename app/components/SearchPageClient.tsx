@@ -11,6 +11,8 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import CompareBar from "./CompareBar";
+import { MAX_COMPARE, useCompareSelection } from "../lib/compare-selection";
 import dynamic from "next/dynamic";
 
 const SearchMapClustered = dynamic(() => import("./SearchMapClustered"), {
@@ -227,6 +229,41 @@ function PriceLine({ daily }: { daily: number | null | undefined }) {
   );
 }
 
+function CompareCheckbox({ id }: { id: string }) {
+  const { ids, toggle } = useCompareSelection();
+  const selected = ids.includes(id);
+  const blocked = !selected && ids.length >= MAX_COMPARE;
+
+  return (
+    <button
+      type="button"
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggle(id);
+      }}
+      aria-pressed={selected}
+      disabled={blocked}
+      title={blocked ? `${MAX_COMPARE} établissements au maximum` : undefined}
+      className={`absolute bottom-2 right-2 inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-colors ${
+        selected
+          ? "bg-coral-600 text-white hover:bg-coral-700"
+          : "bg-white text-foreground/70 ring-1 ring-sage-300 hover:ring-coral-500"
+      } ${blocked ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+    >
+      <span
+        aria-hidden="true"
+        className={`flex h-4 w-4 items-center justify-center rounded border text-[11px] leading-none ${
+          selected ? "border-white bg-white text-coral-600" : "border-foreground/40"
+        }`}
+      >
+        {selected ? "✓" : ""}
+      </span>
+      Comparer
+    </button>
+  );
+}
+
 function ResultCard({
   result,
   highlighted,
@@ -242,7 +279,7 @@ function ResultCard({
     <div
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className={`h-full rounded-2xl border bg-white p-4 transition-all duration-200 group ${
+      className={`relative h-full rounded-2xl border bg-white p-4 transition-all duration-200 group ${
         highlighted
           ? "scale-[1.01] border-coral-500 shadow-md ring-1 ring-coral-100"
           : "border-sage-200 shadow-sm hover:border-sage-300 hover:shadow-md"
@@ -286,6 +323,7 @@ function ResultCard({
           </div>
         </div>
       </Link>
+      <CompareCheckbox id={result.finess_geo} />
     </div>
   );
 }
@@ -1025,6 +1063,7 @@ export default function SearchPageClient({
           onSearchInZone={handleSearchInZone}
         />
       </div>
+      <CompareBar />
     </div>
   );
 }

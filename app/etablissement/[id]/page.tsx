@@ -6,6 +6,8 @@ import { getEhpadByFiness } from "@/app/lib/ehpad";
 import type { EhpadDetail } from "@/app/lib/ehpad";
 import EstablishmentMapWrapper from "@/app/components/EstablishmentMapWrapper";
 import CostCalculator from "@/app/components/CostCalculator";
+import CompareBar from "@/app/components/CompareBar";
+import CompareToggle from "@/app/components/CompareToggle";
 import { plainSummary } from "@/app/lib/summary";
 import { citySlug, departmentSlug, prettyCity } from "@/app/lib/directory";
 import { aideSociale, AIDE_SOCIALE_LABEL } from "@/app/lib/aide-sociale";
@@ -602,12 +604,7 @@ export default async function EtablissementPage({ params }: Props) {
 
               {/* Quick actions */}
               <div className="bg-white rounded-3xl border border-sage-200 p-5 space-y-3">
-                <Link
-                  href={`/comparer?ids=${ehpad.finess_geo}`}
-                  className="block w-full text-center text-sm font-semibold rounded-full px-4 py-3 bg-coral-600 text-white hover:bg-coral-700 transition-colors"
-                >
-                  Comparer avec d&apos;autres EHPAD
-                </Link>
+                <CompareToggle id={ehpad.finess_geo} />
                 {ehpad.city && ehpad.department_code && (
                   <Link
                     href={`/ehpad/${departmentSlug(ehpad.department_code, ehpad.department_name)}/${citySlug(ehpad.city)}`}
@@ -640,6 +637,7 @@ export default async function EtablissementPage({ params }: Props) {
           Numéro FINESS : <span className="font-mono">{ehpad.finess_geo}</span>. Données
           publiques : annuaire FINESS, évaluations de la HAS, tarifs de la CNSA.
         </p>
+        <CompareBar />
       </div>
     </>
   );
