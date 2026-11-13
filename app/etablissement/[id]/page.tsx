@@ -109,6 +109,78 @@ function formatImportantCriteriaRate(rate: number) {
   }).format(rate / 100);
 }
 
+function TariffDetail({ ehpad }: { ehpad: EhpadDetail }) {
+  return (
+    <>
+
+                {/* Hébergement */}
+                {(ehpad.accommodation_price_single != null || ehpad.accommodation_price_double != null) && (
+                  <div className="mb-5">
+                    <p className="text-xs uppercase tracking-wide text-foreground/45 mb-2">Hébergement</p>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      {ehpad.accommodation_price_single != null && (
+                        <div className="bg-sage-50 rounded-2xl p-3">
+                          <p className="text-foreground/50 text-xs">Chambre individuelle</p>
+                          <p className="mt-1 font-semibold text-base">{ehpad.accommodation_price_single.toFixed(2)} €<span className="text-xs font-normal text-foreground/50">/jour</span></p>
+                          <p className="text-foreground/40 text-xs mt-0.5">≈ {(ehpad.accommodation_price_single * 30).toFixed(0)} €/mois</p>
+                        </div>
+                      )}
+                      {ehpad.accommodation_price_double != null && (
+                        <div className="bg-sage-50 rounded-2xl p-3">
+                          <p className="text-foreground/50 text-xs">Chambre double</p>
+                          <p className="mt-1 font-semibold text-base">{ehpad.accommodation_price_double.toFixed(2)} €<span className="text-xs font-normal text-foreground/50">/jour</span></p>
+                          <p className="text-foreground/40 text-xs mt-0.5">≈ {(ehpad.accommodation_price_double * 30).toFixed(0)} €/mois</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tarifs dépendance GIR */}
+                {(ehpad.dependency_tariff_gir_12 != null || ehpad.dependency_tariff_gir_34 != null || ehpad.dependency_tariff_gir_56 != null) && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs uppercase tracking-wide text-foreground/45">Tarif selon la dépendance</p>
+                      <span className="text-xs text-foreground/35 italic">financé en partie par l&apos;APA</span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      {ehpad.dependency_tariff_gir_12 != null && (
+                        <div className="flex items-center gap-3 rounded-2xl border border-coral-100 bg-coral-50 px-4 py-3">
+                          <div className="flex-1">
+                            <p className="font-medium text-coral-700">Dépendance forte</p>
+                            <p className="text-xs text-coral-600 mt-0.5">GIR 1 et 2 · aide permanente</p>
+                          </div>
+                          <p className="font-semibold text-coral-700 whitespace-nowrap">{ehpad.dependency_tariff_gir_12.toFixed(2)} €/jour</p>
+                        </div>
+                      )}
+                      {ehpad.dependency_tariff_gir_34 != null && (
+                        <div className="flex items-center gap-3 rounded-2xl border border-sun-200 bg-sun-100 px-4 py-3">
+                          <div className="flex-1">
+                            <p className="font-medium text-sun-700">Dépendance modérée</p>
+                            <p className="text-xs text-sun-700 mt-0.5">GIR 3 et 4 · aide quotidienne</p>
+                          </div>
+                          <p className="font-semibold text-sun-700 whitespace-nowrap">{ehpad.dependency_tariff_gir_34.toFixed(2)} €/jour</p>
+                        </div>
+                      )}
+                      {ehpad.dependency_tariff_gir_56 != null && (
+                        <div className="flex items-center gap-3 rounded-2xl border border-teal-200 bg-teal-100 px-4 py-3">
+                          <div className="flex-1">
+                            <p className="font-medium text-teal-800">Dépendance légère</p>
+                            <p className="text-xs text-teal-600 mt-0.5">GIR 5 et 6 · aide ponctuelle</p>
+                          </div>
+                          <p className="font-semibold text-teal-800 whitespace-nowrap">{ehpad.dependency_tariff_gir_56.toFixed(2)} €/jour</p>
+                        </div>
+                      )}
+                    </div>
+                    <p className="mt-3 text-xs text-foreground/40">
+                      Le niveau de dépendance de votre proche est mesuré par son groupe GIR, de 1 (très dépendant) à 6 (autonome). Il détermine le tarif ci-dessus et l&apos;éligibilité à l&apos;APA (Allocation Personnalisée d&apos;Autonomie).
+                    </p>
+                  </div>
+                )}
+    </>
+  );
+}
+
 function JsonLd({ ehpad }: { ehpad: EhpadDetail }) {
   const fullAddress = [ehpad.address_line, ehpad.postal_code, ehpad.city]
     .filter(Boolean)
@@ -230,9 +302,12 @@ export default async function EtablissementPage({ params }: Props) {
                 </span>
               )}
               {(ehpad.alzheimer_places || ehpad.has_pasa || ehpad.has_uhr) && (
-                <span className="rounded-full px-3 py-1 border font-medium bg-coral-50 text-coral-700 border-coral-100">
+                <a
+                  href="#alzheimer"
+                  className="rounded-full px-3 py-1 border font-medium bg-coral-50 text-coral-700 border-coral-100 hover:bg-coral-100"
+                >
                   Unité Alzheimer
-                </span>
+                </a>
               )}
               {aideSociale(ehpad.mft_code) !== "inconnu" && (
                 <span
@@ -263,6 +338,15 @@ export default async function EtablissementPage({ params }: Props) {
                 </p>
               )}
               <p className={`mt-1 text-xs ${gc.text}`}>{gc.label}</p>
+              {ehpad.has_eval_date && (
+                <p className={`mt-1 text-[11px] opacity-75 ${gc.text}`}>
+                  Évaluée en{" "}
+                  {new Date(ehpad.has_eval_date).toLocaleDateString("fr-FR", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
             </div>
           ) : (
             <div className="flex-shrink-0 rounded-3xl bg-sage-100 px-6 py-5 text-center min-w-[140px]">
@@ -279,102 +363,28 @@ export default async function EtablissementPage({ params }: Props) {
       </div>
       </div>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {/* Repères */}
-        <div className="mb-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="rounded-3xl bg-warm-100 text-warm-700 p-5 flex flex-col justify-between min-h-32">
-            <p className="font-serif text-3xl font-semibold leading-tight">
-              {ehpad.accommodation_price_single != null
-                ? `${Math.round(ehpad.accommodation_price_single * 30).toLocaleString("fr-FR")} €`
-                : "Non publié"}
-            </p>
-            <p className="font-medium text-sm">
-              {ehpad.accommodation_price_single != null
-                ? "par mois, chambre seule"
-                : "tarif d'hébergement"}
-            </p>
-          </div>
-          <div className="rounded-3xl bg-teal-100 text-teal-700 p-5 flex flex-col justify-between min-h-32">
-            <p className="font-serif text-3xl font-semibold leading-tight">
-              {ehpad.capacity_total ?? "—"}
-            </p>
-            <p className="font-medium text-sm">places</p>
-          </div>
-          <div className="rounded-3xl bg-sky-100 text-sky-700 p-5 flex flex-col justify-between min-h-32">
-            <p className="font-serif text-2xl font-semibold leading-tight">
-              {aideSociale(ehpad.mft_code) === "oui"
-                ? "Oui"
-                : aideSociale(ehpad.mft_code) === "non"
-                  ? "Non"
-                  : "À vérifier"}
-            </p>
-            <p className="font-medium text-sm">habilité à l&apos;aide sociale</p>
-          </div>
-          <div className="rounded-3xl bg-sun-100 text-sun-700 p-5 flex flex-col justify-between min-h-32">
-            <p className="font-serif text-2xl font-semibold leading-tight">
-              {ehpad.has_eval_date
-                ? new Date(ehpad.has_eval_date).toLocaleDateString("fr-FR", {
-                    month: "long",
-                    year: "numeric",
-                  })
-                : "Non publiée"}
-            </p>
-            <p className="font-medium text-sm">évaluation HAS</p>
-          </div>
-        </div>
-
-        {/* Résumé en langage clair */}
-        <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
-          <h2 className="text-xl mb-2">En clair</h2>
-          <div className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
-            {plainSummary(ehpad).map((line) => (
-              <p key={line}>{line}</p>
-            ))}
-          </div>
-          <p className="mt-3 text-sm text-foreground/65">
-            <Link href="/guides/lire-une-evaluation-has" className="text-teal-600 underline underline-offset-2">
-              Comment lire une évaluation HAS
-            </Link>
-          </p>
-        </section>
-
-        {/* Alzheimer */}
-        <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
-          <h2 className="text-xl mb-2">Accompagnement Alzheimer</h2>
-          {ehpad.alzheimer_places || ehpad.has_pasa || ehpad.has_uhr ? (
-            <ul className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
-              {ehpad.alzheimer_places ? (
-                <li>
-                  <strong>{ehpad.alzheimer_places} places</strong> déclarées pour des
-                  personnes atteintes de la maladie d&apos;Alzheimer ou de maladies
-                  apparentées.
-                </li>
-              ) : null}
-              {ehpad.has_pasa ? (
-                <li>
-                  <strong>Un PASA</strong> (pôle d&apos;activités et de soins adaptés) :
-                  des activités en journée pour les résidents qui ont des troubles
-                  modérés.
-                </li>
-              ) : null}
-              {ehpad.has_uhr ? (
-                <li>
-                  <strong>Une UHR</strong> (unité d&apos;hébergement renforcée) : une
-                  unité sécurisée pour les troubles du comportement sévères.
-                </li>
-              ) : null}
-            </ul>
-          ) : (
-            <p className="text-foreground/85 leading-relaxed max-w-prose">
-              Aucune unité spécialisée n&apos;est déclarée pour cet établissement dans
-              le répertoire officiel (FINESS). Cela ne veut pas dire qu&apos;il
-              n&apos;accueille pas de personnes malades : posez la question lors de la
-              visite.
-            </p>
-          )}
-          <p className="mt-3 text-sm text-foreground/55">
-            Source : répertoire FINESS, à confirmer avec l&apos;établissement.
-          </p>
-        </section>
+        {/* Tarif et reste à payer */}
+        {ehpad.accommodation_price_single != null ? (
+          <CostCalculator
+            aideSociale={aideSociale(ehpad.mft_code)}
+            pricing={{
+              accommodation_price_single: ehpad.accommodation_price_single,
+              dependency_tariff_gir_12: ehpad.dependency_tariff_gir_12,
+              dependency_tariff_gir_34: ehpad.dependency_tariff_gir_34,
+              dependency_tariff_gir_56: ehpad.dependency_tariff_gir_56,
+            }}
+          >
+            <TariffDetail ehpad={ehpad} />
+          </CostCalculator>
+        ) : ehpad.accommodation_price_double != null ||
+          ehpad.dependency_tariff_gir_12 != null ||
+          ehpad.dependency_tariff_gir_34 != null ||
+          ehpad.dependency_tariff_gir_56 != null ? (
+          <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
+            <h2 className="text-xl mb-4">Tarifs</h2>
+            <TariffDetail ehpad={ehpad} />
+          </section>
+        ) : null}
 
         {/* Et maintenant ? */}
         <section className="mb-8 rounded-3xl bg-teal-100 p-6">
@@ -426,6 +436,21 @@ export default async function EtablissementPage({ params }: Props) {
               </Link>
             </li>
           </ol>
+        </section>
+
+        {/* Résumé en langage clair */}
+        <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
+          <h2 className="text-xl mb-2">En clair</h2>
+          <div className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
+            {plainSummary(ehpad).map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
+          <p className="mt-3 text-sm text-foreground/65">
+            <Link href="/guides/lire-une-evaluation-has" className="text-teal-600 underline underline-offset-2">
+              Comment lire une évaluation HAS
+            </Link>
+          </p>
         </section>
 
         {/* Main content grid */}
@@ -509,89 +534,44 @@ export default async function EtablissementPage({ params }: Props) {
               </section>
             )}
 
-            {/* Pricing */}
-            {(ehpad.accommodation_price_single != null || ehpad.accommodation_price_double != null || ehpad.dependency_tariff_gir_12 != null || ehpad.dependency_tariff_gir_34 != null || ehpad.dependency_tariff_gir_56 != null) && (
-              <section className="bg-white rounded-3xl border border-sage-200 p-6">
-                <h2 className="text-lg font-semibold mb-4">Tarifs</h2>
-
-                {/* Hébergement */}
-                {(ehpad.accommodation_price_single != null || ehpad.accommodation_price_double != null) && (
-                  <div className="mb-5">
-                    <p className="text-xs uppercase tracking-wide text-foreground/45 mb-2">Hébergement</p>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      {ehpad.accommodation_price_single != null && (
-                        <div className="bg-sage-50 rounded-2xl p-3">
-                          <p className="text-foreground/50 text-xs">Chambre individuelle</p>
-                          <p className="mt-1 font-semibold text-base">{ehpad.accommodation_price_single.toFixed(2)} €<span className="text-xs font-normal text-foreground/50">/jour</span></p>
-                          <p className="text-foreground/40 text-xs mt-0.5">≈ {(ehpad.accommodation_price_single * 30).toFixed(0)} €/mois</p>
-                        </div>
-                      )}
-                      {ehpad.accommodation_price_double != null && (
-                        <div className="bg-sage-50 rounded-2xl p-3">
-                          <p className="text-foreground/50 text-xs">Chambre double</p>
-                          <p className="mt-1 font-semibold text-base">{ehpad.accommodation_price_double.toFixed(2)} €<span className="text-xs font-normal text-foreground/50">/jour</span></p>
-                          <p className="text-foreground/40 text-xs mt-0.5">≈ {(ehpad.accommodation_price_double * 30).toFixed(0)} €/mois</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tarifs dépendance GIR */}
-                {(ehpad.dependency_tariff_gir_12 != null || ehpad.dependency_tariff_gir_34 != null || ehpad.dependency_tariff_gir_56 != null) && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <p className="text-xs uppercase tracking-wide text-foreground/45">Tarif selon la dépendance</p>
-                      <span className="text-xs text-foreground/35 italic">financé en partie par l&apos;APA</span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      {ehpad.dependency_tariff_gir_12 != null && (
-                        <div className="flex items-center gap-3 rounded-2xl border border-coral-100 bg-coral-50 px-4 py-3">
-                          <div className="flex-1">
-                            <p className="font-medium text-coral-700">Dépendance forte</p>
-                            <p className="text-xs text-coral-600 mt-0.5">GIR 1 et 2 · aide permanente</p>
-                          </div>
-                          <p className="font-semibold text-coral-700 whitespace-nowrap">{ehpad.dependency_tariff_gir_12.toFixed(2)} €/jour</p>
-                        </div>
-                      )}
-                      {ehpad.dependency_tariff_gir_34 != null && (
-                        <div className="flex items-center gap-3 rounded-2xl border border-sun-200 bg-sun-100 px-4 py-3">
-                          <div className="flex-1">
-                            <p className="font-medium text-sun-700">Dépendance modérée</p>
-                            <p className="text-xs text-sun-700 mt-0.5">GIR 3 et 4 · aide quotidienne</p>
-                          </div>
-                          <p className="font-semibold text-sun-700 whitespace-nowrap">{ehpad.dependency_tariff_gir_34.toFixed(2)} €/jour</p>
-                        </div>
-                      )}
-                      {ehpad.dependency_tariff_gir_56 != null && (
-                        <div className="flex items-center gap-3 rounded-2xl border border-teal-200 bg-teal-100 px-4 py-3">
-                          <div className="flex-1">
-                            <p className="font-medium text-teal-800">Dépendance légère</p>
-                            <p className="text-xs text-teal-600 mt-0.5">GIR 5 et 6 · aide ponctuelle</p>
-                          </div>
-                          <p className="font-semibold text-teal-800 whitespace-nowrap">{ehpad.dependency_tariff_gir_56.toFixed(2)} €/jour</p>
-                        </div>
-                      )}
-                    </div>
-                    <p className="mt-3 text-xs text-foreground/40">
-                      Le niveau de dépendance de votre proche est mesuré par son groupe GIR, de 1 (très dépendant) à 6 (autonome). Il détermine le tarif ci-dessus et l&apos;éligibilité à l&apos;APA (Allocation Personnalisée d&apos;Autonomie).
-                    </p>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {ehpad.accommodation_price_single != null && (
-              <CostCalculator
-                aideSociale={aideSociale(ehpad.mft_code)}
-                pricing={{
-                  accommodation_price_single: ehpad.accommodation_price_single,
-                  dependency_tariff_gir_12: ehpad.dependency_tariff_gir_12,
-                  dependency_tariff_gir_34: ehpad.dependency_tariff_gir_34,
-                  dependency_tariff_gir_56: ehpad.dependency_tariff_gir_56,
-                }}
-              />
-            )}
+            {/* Alzheimer */}
+            <section id="alzheimer" className="scroll-mt-4 rounded-3xl border border-sage-200 bg-white p-6">
+              <h2 className="text-xl mb-2">Accompagnement Alzheimer</h2>
+              {ehpad.alzheimer_places || ehpad.has_pasa || ehpad.has_uhr ? (
+                <ul className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
+                  {ehpad.alzheimer_places ? (
+                    <li>
+                      <strong>{ehpad.alzheimer_places} places</strong> déclarées pour des
+                      personnes atteintes de la maladie d&apos;Alzheimer ou de maladies
+                      apparentées.
+                    </li>
+                  ) : null}
+                  {ehpad.has_pasa ? (
+                    <li>
+                      <strong>Un PASA</strong> (pôle d&apos;activités et de soins adaptés) :
+                      des activités en journée pour les résidents qui ont des troubles
+                      modérés.
+                    </li>
+                  ) : null}
+                  {ehpad.has_uhr ? (
+                    <li>
+                      <strong>Une UHR</strong> (unité d&apos;hébergement renforcée) : une
+                      unité sécurisée pour les troubles du comportement sévères.
+                    </li>
+                  ) : null}
+                </ul>
+              ) : (
+                <p className="text-foreground/85 leading-relaxed max-w-prose">
+                  Aucune unité spécialisée n&apos;est déclarée pour cet établissement dans
+                  le répertoire officiel (FINESS). Cela ne veut pas dire qu&apos;il
+                  n&apos;accueille pas de personnes malades : posez la question lors de la
+                  visite.
+                </p>
+              )}
+              <p className="mt-3 text-sm text-foreground/55">
+                Source : répertoire FINESS, à confirmer avec l&apos;établissement.
+              </p>
+            </section>
 
             {/* General info */}
             <section className="bg-white rounded-3xl border border-sage-200 p-6">
