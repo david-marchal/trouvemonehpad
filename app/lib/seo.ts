@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const SITE_NAME = "TrouveMonEHPAD";
-export const SITE_URL = "https://trouvemonehpad.vercel.app";
+export const SITE_URL = "https://www.trouvemonehpad.fr";
 export const SITE_TAGLINE = "Les évaluations officielles des EHPAD, lisibles par les familles";
 export const HOME_TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
 export const SITE_DESCRIPTION =

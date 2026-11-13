@@ -87,7 +87,7 @@ export const OVERPASS_URLS = [
   "https://overpass.kumi.systems/api/interpreter",
 ];
 const OVERPASS_TIMEOUT_MS = 9500;
-const USER_AGENT = "TrouveMonEHPAD/1.0 (https://trouvemonehpad.vercel.app)";
+const USER_AGENT = "TrouveMonEHPAD/1.0 (https://www.trouvemonehpad.fr)";
 const DEFAULT_RADIUS_METERS = 1000;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 12;
 const nearbyAmenitiesCache = new Map<
