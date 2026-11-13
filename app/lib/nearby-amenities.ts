@@ -80,7 +80,7 @@ export type NearbyAmenitiesResult = {
   detail?: string;
 };
 
-const OVERPASS_URLS = [
+export const OVERPASS_URLS = [
   "https://overpass-api.de/api/interpreter",
   "https://overpass.openstreetmap.fr/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
@@ -107,7 +107,7 @@ function normalizeRadius(radius: number | undefined) {
   return Math.min(Math.max(Math.round(radius), 100), 2000);
 }
 
-function buildOverpassQuery(lat: number, lng: number, radius: number) {
+export function buildOverpassQuery(lat: number, lng: number, radius: number) {
   const fragments = AMENITY_CHECKLIST.flatMap((category) =>
     category.matchers.map(
       ({ tag, value }) =>
@@ -124,7 +124,7 @@ function buildOverpassQuery(lat: number, lng: number, radius: number) {
   `;
 }
 
-function getAmenityChecklistKey(tags: Record<string, string> | undefined) {
+export function getAmenityChecklistKey(tags: Record<string, string> | undefined) {
   if (!tags) {
     return null;
   }

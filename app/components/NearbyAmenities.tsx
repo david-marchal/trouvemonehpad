@@ -1,7 +1,12 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useEffect, useState, type ReactNode } from "react";
 import {
   AMENITY_CHECKLIST,
-  getNearbyAmenities,
+  OVERPASS_URLS,
+  buildOverpassQuery,
+  getAmenityChecklistKey,
+  type AmenityChecklistKey,
 } from "@/app/lib/nearby-amenities";
 
 const SECTION_TITLE = "Commerces et services à proximité";
@@ -27,16 +32,85 @@ export function NearbyAmenitiesLoading() {
   );
 }
 
-export default async function NearbyAmenities({
+const RADIUS = 1000;
+const CACHE_TTL_MS = 1000 * 60 * 60 * 12;
+
+// La requête part du navigateur du visiteur : les serveurs Overpass
+// refusent les requêtes venant des serveurs d'hébergement (Vercel).
+async function queryOverpass(url: string, query: string) {
+  const response = await fetch(url, {
+    method: "POST",
+    body: new URLSearchParams({ data: query }),
+    signal: AbortSignal.timeout(12000),
+  });
+  if (!response.ok) throw new Error(`status ${response.status}`);
+  const payload = (await response.json()) as {
+    elements?: { tags?: Record<string, string> }[];
+    remark?: string;
+  };
+  if (payload.remark && /error|timed out|out of memory/i.test(payload.remark)) {
+    throw new Error(payload.remark);
+  }
+  return payload.elements ?? [];
+}
+
+async function loadCategories(lat: number, lng: number) {
+  const cacheKey = `nearby:${lat.toFixed(4)}:${lng.toFixed(4)}:${RADIUS}`;
+  try {
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) {
+      const cached = JSON.parse(raw) as {
+        at: number;
+        keys: AmenityChecklistKey[];
+      };
+      if (Date.now() - cached.at < CACHE_TTL_MS) return cached.keys;
+    }
+  } catch {}
+
+  const query = buildOverpassQuery(lat, lng, RADIUS);
+  const elements = await Promise.any(
+    OVERPASS_URLS.map((url) => queryOverpass(url, query))
+  );
+  const found = new Set<AmenityChecklistKey>();
+  for (const element of elements) {
+    const key = getAmenityChecklistKey(element.tags);
+    if (key) found.add(key);
+  }
+  const keys = [...found];
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), keys }));
+  } catch {}
+  return keys;
+}
+
+export default function NearbyAmenities({
   lat,
   lng,
 }: {
   lat: number | null;
   lng: number | null;
 }) {
-  const result = await getNearbyAmenities({ lat, lng, radius: 1000 });
+  const [keys, setKeys] = useState<AmenityChecklistKey[] | null>(null);
+  const [failed, setFailed] = useState(false);
 
-  if (!result.available) {
+  useEffect(() => {
+    if (typeof lat !== "number" || typeof lng !== "number") return;
+    let cancelled = false;
+    loadCategories(lat, lng)
+      .then((result) => {
+        if (!cancelled) setKeys(result);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [lat, lng]);
+
+  const noCoordinates = typeof lat !== "number" || typeof lng !== "number";
+
+  if (failed || noCoordinates) {
     return (
       <SectionShell>
         <p className="text-sm text-foreground/55">{FALLBACK_MESSAGE}</p>
@@ -44,6 +118,11 @@ export default async function NearbyAmenities({
     );
   }
 
+  if (keys === null) {
+    return <NearbyAmenitiesLoading />;
+  }
+
+  const result = { presentCategories: keys };
   const presentCategories = new Set(result.presentCategories);
 
   return (
