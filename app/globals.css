@@ -130,3 +130,15 @@ h2 {
   font-family: var(--font-sans);
   font-weight: 700;
 }
+
+/* Impression (fiche de visite) : on retire la navigation et les boutons */
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}

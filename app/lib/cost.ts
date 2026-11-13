@@ -80,3 +80,17 @@ export function priceInRange(dailyPrice: number | null | undefined, rangeValue: 
   const monthly = dailyPrice * DAYS_PER_MONTH;
   return monthly >= range.min && monthly < range.max;
 }
+
+export const TAX_REDUCTION_RATE = 0.25;
+export const TAX_REDUCTION_CEILING = 10000;
+
+/** Réduction d'impôt annuelle : 25 % des frais d'hébergement et de dépendance
+ *  restant à charge, dans la limite de 10 000 € par an et par personne. */
+export function annualTaxReduction(annualExpense: number) {
+  return TAX_REDUCTION_RATE * Math.min(Math.max(annualExpense, 0), TAX_REDUCTION_CEILING);
+}
+
+/** Coût mensuel moyen une fois la réduction d'impôt déduite. */
+export function monthlyAfterTaxReduction(monthlyExpense: number) {
+  return monthlyExpense - annualTaxReduction(monthlyExpense * 12) / 12;
+}

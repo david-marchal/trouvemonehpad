@@ -75,6 +75,31 @@ export default function AboutPage() {
 
         <section>
           <h2 className="text-xl font-semibold text-foreground mb-3">
+            Nos limites
+          </h2>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>
+              Nous ne savons pas si un établissement a une place libre : cette
+              information n&apos;est pas publique. Appelez-le.
+            </li>
+            <li>
+              Nous n&apos;avons ni photos ni avis de familles. Une note résume une
+              évaluation faite à un moment donné ; elle ne remplace pas une visite.
+            </li>
+            <li>
+              Les tarifs viennent de la CNSA et ne sont pas publiés pour tous les
+              établissements. Les unités Alzheimer viennent du répertoire FINESS
+              et peuvent être incomplètes.
+            </li>
+            <li>
+              Les estimations de coût sont indicatives : elles ne remplacent pas
+              le contrat de séjour ni la décision du département pour l&apos;APA.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold text-foreground mb-3">
             About TrouveMonEHPAD (English)
           </h2>
           <p>

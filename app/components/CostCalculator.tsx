@@ -5,19 +5,35 @@ import {
   GIR_OPTIONS,
   estimateMonthly,
   euros,
+  monthlyAfterTaxReduction,
   type GirGroup,
 } from "../lib/cost";
+import type { AideSociale } from "../lib/aide-sociale";
 
 type Pricing = Parameters<typeof estimateMonthly>[0];
 
-export default function CostCalculator({ pricing }: { pricing: Pricing }) {
+export default function CostCalculator({
+  pricing,
+  aideSociale = "inconnu",
+}: {
+  pricing: Pricing;
+  aideSociale?: AideSociale;
+}) {
   const [gir, setGir] = useState<GirGroup>("34");
+  const [incomeText, setIncomeText] = useState("");
   const name = useId();
+  const incomeId = useId();
   const est = estimateMonthly(pricing, gir);
+
+  const income = Number.parseFloat(incomeText.replace(",", "."));
+  const hasIncome = Number.isFinite(income) && income > 0;
+
+  const low = est && est.apaPossible && est.avecApa != null ? est.avecApa : null;
+  const high = est ? est.sansApa : null;
 
   return (
     <section className="bg-white rounded-3xl border border-sage-200 p-6">
-      <h2 className="text-xl">Estimer le coût mensuel</h2>
+      <h2 className="text-xl">Estimer ce qu&apos;il reste à payer</h2>
       <p className="mt-1 text-sm text-foreground/70">
         Chambre seule, mois de 30 jours. Choisissez le niveau de dépendance
         de votre proche (son groupe GIR est indiqué dessous).
@@ -52,13 +68,11 @@ export default function CostCalculator({ pricing }: { pricing: Pricing }) {
         </div>
       </fieldset>
 
-      {est ? (
+      {est && high != null ? (
         <div className="mt-5" aria-live="polite">
           <p className="text-sm text-foreground/70">Vous paierez environ</p>
           <p className="font-serif text-3xl font-semibold text-teal-700 mt-0.5">
-            {est.apaPossible && est.avecApa != null
-              ? `${euros(est.avecApa)} à ${euros(est.sansApa)}`
-              : euros(est.sansApa)}
+            {low != null ? `${euros(low)} à ${euros(high)}` : euros(high)}
             <span className="text-base font-normal text-foreground/60">
               {" "}
               par mois
@@ -79,9 +93,85 @@ export default function CostCalculator({ pricing }: { pricing: Pricing }) {
           <p className="mt-4 text-sm text-foreground/70 leading-relaxed">
             {est.apaPossible
               ? "Le bas de la fourchette suppose que l'APA couvre la dépendance, sauf le ticket modérateur (tarif GIR 5-6). Le haut ne compte aucune aide. Votre montant réel dépend de vos revenus et de votre département."
-              : "Pour les GIR 5 et 6, la dépendance reste à la charge du résident : l'APA ne s'applique pas."}{" "}
-            Les aides au logement et la réduction d&apos;impôt ne sont pas
-            déduites.
+              : "Pour les GIR 5 et 6, la dépendance reste à la charge du résident : l'APA ne s'applique pas."}
+          </p>
+
+          <div className="mt-5 rounded-2xl bg-sun-100/50 p-4">
+            <h3 className="text-base font-semibold">Avec la réduction d&apos;impôt</h3>
+            <p className="mt-1 font-serif text-2xl font-semibold text-sun-700">
+              {low != null
+                ? `${euros(monthlyAfterTaxReduction(low))} à ${euros(monthlyAfterTaxReduction(high))}`
+                : euros(monthlyAfterTaxReduction(high))}
+              <span className="text-base font-normal text-foreground/60">
+                {" "}
+                par mois en moyenne
+              </span>
+            </p>
+            <p className="mt-2 text-sm text-foreground/75 leading-relaxed">
+              La réduction d&apos;impôt est de 25 % des frais d&apos;hébergement et de
+              dépendance restant à votre charge, dans la limite de 10 000 € par an
+              et par personne, soit 2 500 € au maximum. Elle est déduite de votre
+              impôt l&apos;année suivante, à la déclaration de revenus : vérifiez
+              votre situation sur impots.gouv.fr.
+            </p>
+          </div>
+
+          <div className="mt-5">
+            <label htmlFor={incomeId} className="block text-sm font-medium">
+              Revenus mensuels de votre proche (facultatif)
+            </label>
+            <p className="text-xs text-foreground/60">
+              Retraites et pensions. Ce chiffre reste dans votre navigateur.
+            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                id={incomeId}
+                inputMode="decimal"
+                value={incomeText}
+                onChange={(e) => setIncomeText(e.target.value)}
+                placeholder="1 800"
+                className="min-h-[44px] w-40 rounded-full border border-sage-200 px-4 text-base focus:border-coral-500 focus:outline-none"
+              />
+              <span className="text-sm text-foreground/60">€ par mois</span>
+            </div>
+            {hasIncome ? (
+              <p className="mt-3 text-sm leading-relaxed text-foreground/80" aria-live="polite">
+                {(() => {
+                  const shortHigh = Math.max(0, high - income);
+                  const shortLow = low != null ? Math.max(0, low - income) : shortHigh;
+                  if (shortHigh === 0) {
+                    return "Ces revenus couvrent le coût estimé, même sans aucune aide.";
+                  }
+                  if (shortLow === 0) {
+                    return `Ces revenus couvrent le coût si l'APA est accordée. Sans aide, il manquerait environ ${euros(shortHigh)} par mois.`;
+                  }
+                  return shortLow === shortHigh
+                    ? `Il manquerait environ ${euros(shortHigh)} par mois.`
+                    : `Il manquerait entre ${euros(shortLow)} et ${euros(shortHigh)} par mois, avant la réduction d'impôt.`;
+                })()}
+              </p>
+            ) : null}
+          </div>
+
+          {aideSociale === "oui" ? (
+            <p className="mt-5 text-sm leading-relaxed text-foreground/80">
+              <strong>Si les revenus ne suffisent pas :</strong> cet établissement
+              est habilité à l&apos;aide sociale. Le département peut prendre en
+              charge une partie des frais. Les enfants peuvent alors être sollicités
+              (obligation alimentaire), et le département peut récupérer les sommes
+              avancées sur la succession. Renseignez-vous auprès du CCAS de la
+              commune ou du conseil départemental.
+            </p>
+          ) : null}
+          {aideSociale === "non" ? (
+            <p className="mt-5 text-sm leading-relaxed text-foreground/80">
+              Cet établissement n&apos;est pas habilité à l&apos;aide sociale : si les
+              ressources s&apos;épuisent, un transfert vers un autre établissement peut
+              être nécessaire. Posez la question avant de signer.
+            </p>
+          ) : null}
+          <p className="mt-4 text-xs text-foreground/55">
+            Estimation indicative. Les aides au logement ne sont pas déduites.
           </p>
         </div>
       ) : (

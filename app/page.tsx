@@ -169,6 +169,45 @@ export default async function Home() {
         </ul>
       </section>
 
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+        <h2 className="text-2xl sm:text-3xl">Un site indépendant</h2>
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-3xl bg-teal-100 p-6 text-teal-700">
+            <h3 className="text-lg font-semibold">Sans publicité, sans rappel</h3>
+            <p className="mt-2 text-sm leading-relaxed">
+              Aucun établissement ne paie pour apparaître ici, et personne ne vous
+              rappelle : pas de formulaire de contact, pas de démarchage.
+            </p>
+          </div>
+          <div className="rounded-3xl bg-sky-100 p-6 text-sky-700">
+            <h3 className="text-lg font-semibold">Des données officielles</h3>
+            <p className="mt-2 text-sm leading-relaxed">
+              Annuaire FINESS, évaluations de la Haute Autorité de santé, tarifs de
+              la CNSA.{" "}
+              {stats?.updatedAt
+                ? `Dernière mise à jour le ${formatDateFr(stats.updatedAt)}.`
+                : "Mises à jour chaque jour."}
+            </p>
+          </div>
+          <div className="rounded-3xl bg-warm-100 p-6 text-warm-700">
+            <h3 className="text-lg font-semibold">Nos limites, dites franchement</h3>
+            <p className="mt-2 text-sm leading-relaxed">
+              Nous ne connaissons pas les places disponibles et nous n&apos;avons pas
+              d&apos;avis de familles.{" "}
+              <Link href="/about" className="font-semibold underline underline-offset-2">
+                Nos sources et nos limites
+              </Link>
+            </p>
+          </div>
+        </div>
+        <p className="mt-6 text-sm text-foreground/70">
+          Vous préférez parcourir ?{" "}
+          <Link href="/ehpad" className="font-semibold text-teal-600 underline underline-offset-2 hover:text-teal-700">
+            Les EHPAD par département
+          </Link>
+        </p>
+      </section>
+
       <section className="border-t border-sage-200 bg-white">
         <p className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-foreground/70">
           Ce site ne classe pas les EHPAD : la HAS ne conçoit pas ses

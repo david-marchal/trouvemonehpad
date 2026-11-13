@@ -79,6 +79,7 @@ function Footer() {
             <ul className="text-sm text-foreground/70">
               {[
                 ["/search", "Rechercher un EHPAD"],
+                ["/ehpad", "EHPAD par département"],
                 ["/comparer", "Comparer des EHPAD"],
                 ["/guides", "Guides pour les familles"],
                 ["/about", "À propos"],

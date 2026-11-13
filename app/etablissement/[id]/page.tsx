@@ -7,6 +7,7 @@ import type { EhpadDetail } from "@/app/lib/ehpad";
 import EstablishmentMapWrapper from "@/app/components/EstablishmentMapWrapper";
 import CostCalculator from "@/app/components/CostCalculator";
 import { plainSummary } from "@/app/lib/summary";
+import { citySlug, departmentSlug, prettyCity } from "@/app/lib/directory";
 import { aideSociale, AIDE_SOCIALE_LABEL } from "@/app/lib/aide-sociale";
 import NearbyAmenities, {
   NearbyAmenitiesLoading,
@@ -375,6 +376,58 @@ export default async function EtablissementPage({ params }: Props) {
           </p>
         </section>
 
+        {/* Et maintenant ? */}
+        <section className="mb-8 rounded-3xl bg-teal-100 p-6">
+          <h2 className="text-xl mb-4 text-teal-700">Et maintenant ?</h2>
+          <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <li className="rounded-2xl bg-white p-4">
+              <p className="font-semibold">1. Appelez l&apos;établissement</p>
+              <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
+                Demandez s&apos;il a une place, le délai d&apos;attente et le dossier
+                d&apos;admission à remplir.
+              </p>
+              {ehpad.phone ? (
+                <a
+                  href={`tel:${ehpad.phone.replace(/\s/g, "")}`}
+                  className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-coral-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-700"
+                >
+                  Appeler le {ehpad.phone}
+                </a>
+              ) : (
+                <p className="mt-3 text-sm text-foreground/60">
+                  Numéro non renseigné dans les bases publiques.
+                </p>
+              )}
+            </li>
+            <li className="rounded-2xl bg-white p-4">
+              <p className="font-semibold">2. Visitez, deux fois si possible</p>
+              <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
+                Une fois en semaine, une fois le week-end ou à l&apos;heure du repas.
+                Apportez la liste de questions.
+              </p>
+              <Link
+                href={`/etablissement/${ehpad.finess_geo}/visite`}
+                className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-teal-700 ring-1 ring-teal-600 transition-colors hover:bg-teal-100"
+              >
+                Imprimer les questions
+              </Link>
+            </li>
+            <li className="rounded-2xl bg-white p-4">
+              <p className="font-semibold">3. Lisez avant de signer</p>
+              <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
+                Demandez le contrat de séjour, le règlement de fonctionnement et le
+                rapport d&apos;évaluation HAS complet.
+              </p>
+              <Link
+                href={`/comparer?ids=${ehpad.finess_geo}`}
+                className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-teal-700 ring-1 ring-teal-600 transition-colors hover:bg-teal-100"
+              >
+                Comparer avec un autre
+              </Link>
+            </li>
+          </ol>
+        </section>
+
         {/* Main content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column - Details */}
@@ -383,7 +436,18 @@ export default async function EtablissementPage({ params }: Props) {
             {/* HAS Evaluation details */}
             {ehpad.has_quality_grade && (
               <section className="bg-white rounded-3xl border border-sage-200 p-6">
-                <h2 className="text-lg font-semibold mb-4">Évaluation HAS</h2>
+                <h2 className="text-lg font-semibold mb-2">Évaluation HAS</h2>
+                <p className="mb-4 text-sm text-foreground/75 leading-relaxed max-w-prose">
+                  La lettre résume l&apos;évaluation officielle, de A (la meilleure) à D.
+                  Elle ne dit rien de l&apos;ambiance au quotidien : demandez le rapport
+                  complet et visitez.{" "}
+                  <Link
+                    href="/guides/lire-une-evaluation-has"
+                    className="text-teal-600 underline underline-offset-2"
+                  >
+                    Comment la lire
+                  </Link>
+                </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                   {ehpad.has_eval_date && (
                     <div>
@@ -519,6 +583,7 @@ export default async function EtablissementPage({ params }: Props) {
 
             {ehpad.accommodation_price_single != null && (
               <CostCalculator
+                aideSociale={aideSociale(ehpad.mft_code)}
                 pricing={{
                   accommodation_price_single: ehpad.accommodation_price_single,
                   dependency_tariff_gir_12: ehpad.dependency_tariff_gir_12,
@@ -618,6 +683,14 @@ export default async function EtablissementPage({ params }: Props) {
                 >
                   Comparer avec d&apos;autres EHPAD
                 </Link>
+                {ehpad.city && ehpad.department_code && (
+                  <Link
+                    href={`/ehpad/${departmentSlug(ehpad.department_code, ehpad.department_name)}/${citySlug(ehpad.city)}`}
+                    className="block w-full text-center text-sm font-medium rounded-full px-4 py-3 bg-sun-100 text-sun-700 hover:bg-sun-200 transition-colors"
+                  >
+                    Tous les EHPAD de {prettyCity(ehpad.city)}
+                  </Link>
+                )}
                 {ehpad.city && (
                   <Link
                     href={`/search?q=${encodeURIComponent(ehpad.city)}&radius=10`}
