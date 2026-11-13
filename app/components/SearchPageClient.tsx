@@ -222,7 +222,7 @@ function PriceLine({ daily }: { daily: number | null | undefined }) {
       <span className="font-semibold text-warm-700">
         {euros(daily * DAYS_PER_MONTH)}
       </span>{" "}
-      <span className="text-xs text-foreground/55">/ mois, chambre seule</span>
+      <span className="text-xs text-foreground/55">/ mois</span>
     </p>
   );
 }
@@ -866,7 +866,7 @@ export default function SearchPageClient({
             <select
               value={priceFilter}
               onChange={(event) => setPriceFilter(event.target.value)}
-              aria-label="Prix mensuel de la chambre seule"
+              aria-label="Tarif mensuel"
               className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-full border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-coral-500 focus:outline-none"
               style={{
                 backgroundImage:
@@ -875,7 +875,7 @@ export default function SearchPageClient({
                 backgroundPosition: "right 8px center",
               }}
             >
-              <option value="">Chambre seule / mois</option>
+              <option value="">Tarif / mois</option>
               {PRICE_RANGES.map((range) => (
                 <option key={range.value} value={range.value}>
                   {range.label}
