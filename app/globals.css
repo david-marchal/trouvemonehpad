@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #F7F9F8;
-  --color-foreground: #17282B;
+  --color-background: #FDF8F2;
+  --color-foreground: #2E2420;
   --color-warm-50: #FFF8F0;
   --color-warm-100: #FFEFD9;
   --color-warm-200: #FFDDB3;
@@ -19,12 +19,12 @@
   --color-teal-500: #3A8E80;
   --color-teal-600: #226A63;
   --color-teal-700: #164B47;
-  --color-sage-50: #F5F7F4;
-  --color-sage-100: #E8ECE5;
-  --color-sage-200: #D0D9CA;
-  --color-sage-300: #B0BFA6;
-  --color-sage-400: #8FA382;
-  --color-sage-500: #708762;
+  --color-sage-50: #FBF5EE;
+  --color-sage-100: #F4EADF;
+  --color-sage-200: #E8DAC9;
+  --color-sage-300: #D3C0AA;
+  --color-sage-400: #B39C84;
+  --color-sage-500: #8D7761;
   --color-rose-50: #FFF5F5;
   --color-rose-100: #FFE0E0;
   --color-rose-400: #E8747A;
@@ -62,7 +62,7 @@ h2 {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-teal-500);
+  outline: 3px solid var(--color-coral-500);
   outline-offset: 2px;
 }
 
@@ -92,8 +92,8 @@ h2 {
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
-  box-shadow: 0 1px 6px rgba(23, 40, 43, 0.28);
-  border: 1px solid rgba(23, 40, 43, 0.08);
+  box-shadow: 0 1px 6px rgba(46, 36, 32, 0.28);
+  border: 1px solid rgba(46, 36, 32, 0.08);
   transition: transform 0.12s ease, background-color 0.12s ease, color 0.12s ease;
 }
 
@@ -118,7 +118,7 @@ h2 {
 .marker-cluster-small,
 .marker-cluster-medium,
 .marker-cluster-large {
-  background-color: rgba(23, 40, 43, 0.16);
+  background-color: rgba(46, 36, 32, 0.16);
 }
 
 .marker-cluster div,

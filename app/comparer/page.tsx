@@ -31,7 +31,7 @@ export default async function ComparerPage({ searchParams }: Props) {
   return (
     <>
       <div className="bg-gradient-to-b from-warm-100 to-coral-50 border-b border-sage-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <div className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 py-10 sm:py-14">
           <h1 className="text-3xl sm:text-5xl leading-tight">
             Comparer des EHPAD
           </h1>
@@ -41,7 +41,7 @@ export default async function ComparerPage({ searchParams }: Props) {
           </p>
         </div>
       </div>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <div className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 py-8 sm:py-10">
         <CompareView ehpads={ehpads} />
       </div>
     </>

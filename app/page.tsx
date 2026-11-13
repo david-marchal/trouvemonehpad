@@ -74,7 +74,7 @@ export default async function Home() {
       />
 
       <section className="bg-gradient-to-b from-warm-100 via-coral-50 to-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 text-center">
+        <div className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 pt-14 sm:pt-20 pb-12 sm:pb-16 text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] max-w-3xl mx-auto">
             Trouvez un EHPAD près de chez vous
           </h1>
@@ -87,7 +87,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+      <section className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 pb-14">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="relative col-span-2 min-h-56 sm:min-h-64 overflow-hidden rounded-3xl bg-sage-100">
             <Image
@@ -116,7 +116,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+      <section className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 pb-14">
         <h2 className="text-2xl sm:text-3xl">Chercher près de…</h2>
         <ul className="mt-5 flex flex-wrap gap-3">
           {CITIES.map((city, i) => (
@@ -132,7 +132,7 @@ export default async function Home() {
         </ul>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+      <section className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 pb-14">
         <h2 className="text-2xl sm:text-3xl">Avant de choisir</h2>
         <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {GUIDES.map((g, i) => (
@@ -154,7 +154,7 @@ export default async function Home() {
       </section>
 
       <section className="border-t border-sage-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 grid grid-cols-1 gap-4 text-sm leading-relaxed text-foreground/70 md:grid-cols-3">
+        <div className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 pt-8 grid grid-cols-1 gap-4 text-sm leading-relaxed text-foreground/70 md:grid-cols-3">
           <p>
             <strong className="text-foreground">Sans publicité.</strong> Aucun
             établissement ne paie pour apparaître ici, et personne ne vous rappelle.
@@ -174,7 +174,7 @@ export default async function Home() {
             </Link>
           </p>
         </div>
-        <p className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-foreground/70">
+        <p className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 py-8 text-foreground/70">
           Ce site ne classe pas les EHPAD : la HAS ne conçoit pas ses
           évaluations comme un palmarès. Vous hésitez entre deux adresses ?{" "}
           <Link

@@ -17,7 +17,7 @@ export default function Header() {
 
   return (
     <header className="border-b border-sage-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <nav className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 h-16 flex items-center justify-between">
         <Link href="/" aria-label="TrouveMonEHPAD, accueil" className="hover:opacity-80 transition-opacity">
           <Logo />
         </Link>

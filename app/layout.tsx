@@ -58,7 +58,7 @@ export const metadata: Metadata = {
 function Footer() {
   return (
     <footer className="border-t border-sage-200 bg-sage-50 mt-auto">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      <div className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div>
             <Logo />

@@ -262,7 +262,7 @@ export default async function EtablissementPage({ params }: Props) {
     <>
       <JsonLd ehpad={ehpad} />
       <div className="border-b border-sage-200 bg-gradient-to-b from-warm-100 to-coral-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-8">
+      <div className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 pt-6 pb-8">
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm text-foreground/50">
           <Link href="/" className="hover:text-teal-600 transition-colors">
@@ -364,11 +364,11 @@ export default async function EtablissementPage({ params }: Props) {
 
       </div>
       </div>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-6xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 2xl:px-10 py-8">
         {/* Main content grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-[minmax(0,1fr)_28rem] gap-6">
           {/* Left column - Details */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 2xl:col-span-1 flex flex-col gap-6 2xl:grid 2xl:grid-cols-2 2xl:content-start">
             {/* Résumé en langage clair */}
             <section className="rounded-3xl border border-sage-200 bg-white p-6">
               <h2 className="text-xl mb-2">En clair</h2>
@@ -408,7 +408,7 @@ export default async function EtablissementPage({ params }: Props) {
             ) : null}
 
             {/* Et maintenant ? */}
-            <section className="rounded-3xl bg-teal-100 p-6">
+            <section className="rounded-3xl bg-teal-100 p-6 2xl:col-span-2">
               <h2 className="text-xl mb-4 text-teal-700">Et maintenant ?</h2>
               <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <li className="rounded-2xl bg-white p-4">
@@ -537,7 +537,7 @@ export default async function EtablissementPage({ params }: Props) {
             )}
 
             {/* Alzheimer */}
-            <section id="alzheimer" className="scroll-mt-4 rounded-3xl border border-sage-200 bg-white p-6">
+            <section id="alzheimer" className={`scroll-mt-4 rounded-3xl border border-sage-200 bg-white p-6 ${ehpad.has_quality_grade ? "" : "2xl:col-span-2"}`}>
               <h2 className="text-xl mb-2">Accompagnement Alzheimer</h2>
               {ehpad.alzheimer_places || ehpad.has_pasa || ehpad.has_uhr ? (
                 <ul className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
