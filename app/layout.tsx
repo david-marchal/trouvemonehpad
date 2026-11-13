@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Atkinson_Hyperlegible_Next, Literata } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, Literata, Nunito } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/react";
 import Header from "./components/Header";
@@ -22,6 +22,14 @@ const atkinson = Atkinson_Hyperlegible_Next({
 const literata = Literata({
   variable: "--font-literata",
   subsets: ["latin", "latin-ext"],
+  display: "swap",
+});
+
+// Police arrondie réservée au logo.
+const nunito = Nunito({
+  variable: "--font-logo",
+  subsets: ["latin"],
+  weight: ["800", "900"],
   display: "swap",
 });
 
@@ -124,7 +132,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${atkinson.variable} ${literata.variable} h-full antialiased`}>
+    <html lang="fr" className={`${atkinson.variable} ${literata.variable} ${nunito.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col overflow-x-hidden">
         <Header />
         <main className="flex-1">{children}</main>

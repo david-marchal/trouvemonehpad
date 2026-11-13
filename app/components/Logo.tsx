@@ -1,4 +1,5 @@
-export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
+/** Maison en contour avec un cœur : symbole du logo. */
+export function LogoMark({ className = "h-12 w-12" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 32 32"
@@ -7,12 +8,24 @@ export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
       focusable="false"
     >
       <path
-        d="M16 2C9.4 2 4 7.3 4 13.8 4 22 16 30 16 30s12-8 12-16.2C28 7.3 22.6 2 16 2Z"
-        fill="currentColor"
+        d="M3.5 15 16 4l12.5 11"
+        fill="none"
+        stroke="var(--color-coral-600)"
+        strokeWidth="2.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
-        d="M11.5 20v-5.2a4.5 4.5 0 0 1 9 0V20Z"
-        fill="var(--color-background)"
+        d="M7 13.5V27h18V13.5"
+        fill="none"
+        stroke="var(--color-coral-600)"
+        strokeWidth="2.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 23.4c-3.6-2.3-4.8-3.9-4.8-5.5a2.6 2.6 0 0 1 4.8-1.3 2.6 2.6 0 0 1 4.8 1.3c0 1.6-1.2 3.2-4.8 5.5Z"
+        fill="var(--color-warm-500)"
       />
     </svg>
   );
@@ -20,10 +33,18 @@ export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
 
 export default function Logo() {
   return (
-    <span className="inline-flex items-center gap-2 text-teal-700">
+    <span
+      className="inline-flex items-center gap-2.5"
+      style={{ fontFamily: "var(--font-logo), var(--font-sans)" }}
+    >
       <LogoMark />
-      <span className="font-serif text-xl font-semibold tracking-tight">
-        TrouveMonEHPAD
+      <span className="flex flex-col leading-[0.92]">
+        <span className="text-[13px] font-extrabold text-warm-600 sm:text-[15px]">
+          TrouveMon
+        </span>
+        <span className="text-[26px] font-black tracking-tight text-coral-600 sm:text-[30px]">
+          EHPAD
+        </span>
       </span>
     </span>
   );
