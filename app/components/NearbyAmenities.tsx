@@ -3,9 +3,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import {
   AMENITY_CHECKLIST,
-  OVERPASS_URLS,
-  buildOverpassQuery,
-  getAmenityChecklistKey,
   type AmenityChecklistKey,
 } from "@/app/lib/nearby-amenities";
 
@@ -34,53 +31,109 @@ export function NearbyAmenitiesLoading() {
 
 const RADIUS = 1000;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 12;
+const REQUEST_SPACING_MS = 1100; // Nominatim : 1 requête par seconde maximum
 
-// La requête part du navigateur du visiteur : les serveurs Overpass
-// refusent les requêtes venant des serveurs d'hébergement (Vercel).
-async function queryOverpass(url: string, query: string) {
-  const response = await fetch(url, {
-    method: "POST",
-    body: new URLSearchParams({ data: query }),
-    signal: AbortSignal.timeout(12000),
-  });
-  if (!response.ok) throw new Error(`status ${response.status}`);
-  const payload = (await response.json()) as {
-    elements?: { tags?: Record<string, string> }[];
-    remark?: string;
-  };
-  if (payload.remark && /error|timed out|out of memory/i.test(payload.remark)) {
-    throw new Error(payload.remark);
-  }
-  return payload.elements ?? [];
+type Status = "pending" | "yes" | "no" | "error";
+
+// Nominatim (OpenStreetMap) sait chercher par type de lieu dans une zone.
+// Recherche : mot-clé → types OSM acceptés dans les résultats.
+const SEARCHES: Record<
+  AmenityChecklistKey,
+  { q: string; types: string[]; limit?: number }[]
+> = {
+  bakery: [{ q: "bakery", types: ["bakery"] }],
+  pharmacy: [{ q: "pharmacy", types: ["pharmacy"] }],
+  supermarket: [{ q: "supermarket", types: ["supermarket"] }],
+  doctor: [
+    { q: "doctors", types: ["doctors"] },
+    { q: "clinic", types: ["clinic"] },
+  ],
+  // « bank » désigne aussi un banc en anglais : on filtre sur le type.
+  bank: [
+    { q: "bank", types: ["bank"], limit: 40 },
+    { q: "banque", types: ["bank"], limit: 40 },
+  ],
+  post_office: [{ q: "post office", types: ["post_office"] }],
+  restaurant: [{ q: "restaurant", types: ["restaurant"] }],
+  park: [{ q: "park", types: ["park"] }],
+  hospital: [{ q: "hospital", types: ["hospital"] }],
+};
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const rad = Math.PI / 180;
+  const dLat = (lat2 - lat1) * rad;
+  const dLng = (lng2 - lng1) * rad;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLng / 2) ** 2;
+  return 6371000 * 2 * Math.asin(Math.sqrt(a));
 }
 
-async function loadCategories(lat: number, lng: number) {
-  const cacheKey = `nearby:${lat.toFixed(4)}:${lng.toFixed(4)}:${RADIUS}`;
+type NominatimResult = { type: string; lat: string; lon: string };
+
+async function searchNominatim(
+  lat: number,
+  lng: number,
+  q: string,
+  limit: number,
+  signal: AbortSignal
+) {
+  const dLat = RADIUS / 111320;
+  const dLng = RADIUS / (111320 * Math.cos((lat * Math.PI) / 180));
+  const viewbox = [lng - dLng, lat + dLat, lng + dLng, lat - dLat].join(",");
+  const url =
+    "https://nominatim.openstreetmap.org/search?" +
+    new URLSearchParams({
+      q,
+      viewbox,
+      bounded: "1",
+      format: "jsonv2",
+      limit: String(limit),
+      "accept-language": "fr",
+    });
+  const response = await fetch(url, {
+    signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]),
+  });
+  if (!response.ok) throw new Error(`status ${response.status}`);
+  return (await response.json()) as NominatimResult[];
+}
+
+async function isPresent(
+  lat: number,
+  lng: number,
+  key: AmenityChecklistKey,
+  signal: AbortSignal
+) {
+  for (const search of SEARCHES[key]) {
+    const results = await searchNominatim(
+      lat,
+      lng,
+      search.q,
+      search.limit ?? 10,
+      signal
+    );
+    const found = results.some(
+      (r) =>
+        search.types.includes(r.type) &&
+        distanceMeters(lat, lng, Number(r.lat), Number(r.lon)) <= RADIUS
+    );
+    if (found) return true;
+    await wait(REQUEST_SPACING_MS);
+  }
+  return false;
+}
+
+function readCache(cacheKey: string): Record<string, Status> | null {
   try {
     const raw = localStorage.getItem(cacheKey);
-    if (raw) {
-      const cached = JSON.parse(raw) as {
-        at: number;
-        keys: AmenityChecklistKey[];
-      };
-      if (Date.now() - cached.at < CACHE_TTL_MS) return cached.keys;
-    }
-  } catch {}
-
-  const query = buildOverpassQuery(lat, lng, RADIUS);
-  const elements = await Promise.any(
-    OVERPASS_URLS.map((url) => queryOverpass(url, query))
-  );
-  const found = new Set<AmenityChecklistKey>();
-  for (const element of elements) {
-    const key = getAmenityChecklistKey(element.tags);
-    if (key) found.add(key);
+    if (!raw) return null;
+    const cached = JSON.parse(raw) as { at: number; statuses: Record<string, Status> };
+    return Date.now() - cached.at < CACHE_TTL_MS ? cached.statuses : null;
+  } catch {
+    return null;
   }
-  const keys = [...found];
-  try {
-    localStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), keys }));
-  } catch {}
-  return keys;
 }
 
 export default function NearbyAmenities({
@@ -90,40 +143,60 @@ export default function NearbyAmenities({
   lat: number | null;
   lng: number | null;
 }) {
-  const [keys, setKeys] = useState<AmenityChecklistKey[] | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [statuses, setStatuses] = useState<Record<string, Status>>({});
 
   useEffect(() => {
     if (typeof lat !== "number" || typeof lng !== "number") return;
-    let cancelled = false;
-    loadCategories(lat, lng)
-      .then((result) => {
-        if (!cancelled) setKeys(result);
-      })
-      .catch(() => {
-        if (!cancelled) setFailed(true);
-      });
-    return () => {
-      cancelled = true;
-    };
+    const cacheKey = `nearby-v2:${lat.toFixed(4)}:${lng.toFixed(4)}:${RADIUS}`;
+    const controller = new AbortController();
+    (async () => {
+      const cached = readCache(cacheKey);
+      if (cached) {
+        setStatuses(cached);
+        return;
+      }
+      const done: Record<string, Status> = {};
+      let hadError = false;
+      for (const { key } of AMENITY_CHECKLIST) {
+        if (controller.signal.aborted) return;
+        try {
+          done[key] = (await isPresent(lat, lng, key, controller.signal))
+            ? "yes"
+            : "no";
+        } catch {
+          if (controller.signal.aborted) return;
+          done[key] = "error";
+          hadError = true;
+        }
+        setStatuses({ ...done });
+        await wait(REQUEST_SPACING_MS);
+      }
+      if (!hadError) {
+        try {
+          localStorage.setItem(
+            cacheKey,
+            JSON.stringify({ at: Date.now(), statuses: done })
+          );
+        } catch {}
+      }
+    })();
+
+    return () => controller.abort();
   }, [lat, lng]);
 
   const noCoordinates = typeof lat !== "number" || typeof lng !== "number";
+  const values = Object.values(statuses);
+  const allFailed =
+    values.length === AMENITY_CHECKLIST.length &&
+    values.every((v) => v === "error");
 
-  if (failed || noCoordinates) {
+  if (noCoordinates || allFailed) {
     return (
       <SectionShell>
         <p className="text-sm text-foreground/55">{FALLBACK_MESSAGE}</p>
       </SectionShell>
     );
   }
-
-  if (keys === null) {
-    return <NearbyAmenitiesLoading />;
-  }
-
-  const result = { presentCategories: keys };
-  const presentCategories = new Set(result.presentCategories);
 
   return (
     <SectionShell>
@@ -133,7 +206,16 @@ export default function NearbyAmenities({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
         {AMENITY_CHECKLIST.map(({ key, label, icon }) => {
-          const isPresent = presentCategories.has(key);
+          const status = statuses[key] ?? "pending";
+          const isPresent = status === "yes";
+          const text =
+            status === "yes"
+              ? "Disponible à proximité"
+              : status === "no"
+                ? "Non repéré"
+                : status === "error"
+                  ? "Indisponible"
+                  : "Recherche…";
 
           return (
             <div
@@ -145,9 +227,7 @@ export default function NearbyAmenities({
               }`}
             >
               <span
-                className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-lg ${
-                  isPresent ? "bg-white" : "bg-white/70"
-                }`}
+                className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-lg"
                 aria-hidden="true"
               >
                 {icon}
@@ -159,7 +239,7 @@ export default function NearbyAmenities({
                     isPresent ? "text-emerald-700" : "text-foreground/45"
                   }`}
                 >
-                  {isPresent ? "Disponible à proximité" : "Non repéré"}
+                  {text}
                 </p>
               </div>
               <span
@@ -168,18 +248,12 @@ export default function NearbyAmenities({
                 }`}
                 aria-hidden="true"
               >
-                {isPresent ? "✓" : "–"}
+                {status === "yes" ? "✓" : status === "pending" ? "" : "–"}
               </span>
             </div>
           );
         })}
       </div>
-
-      {result.presentCategories.length === 0 && (
-        <p className="mt-4 text-sm text-foreground/55">
-          Aucun service n&apos;a été repéré dans cette sélection de catégories.
-        </p>
-      )}
     </SectionShell>
   );
 }
