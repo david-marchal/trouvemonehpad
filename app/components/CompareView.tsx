@@ -7,6 +7,13 @@ import { GIR_OPTIONS, estimateMonthly, euros, type GirGroup } from "../lib/cost"
 import CompareAdd from "./CompareAdd";
 import { aideSociale } from "../lib/aide-sociale";
 
+const GRADE_TINT: Record<string, string> = {
+  A: "bg-teal-100 text-teal-700",
+  B: "bg-sky-100 text-sky-700",
+  C: "bg-sun-100 text-sun-700",
+  D: "bg-coral-100 text-coral-700",
+};
+
 function href(ids: string[]) {
   return ids.length ? `/comparer?ids=${ids.join(",")}` : "/comparer";
 }
@@ -26,7 +33,9 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
       cell: (e) =>
         e.has_quality_grade ? (
           <span>
-            <span className="font-serif text-2xl font-semibold text-teal-700">
+            <span
+              className={`inline-flex h-10 w-10 items-center justify-center rounded-xl font-serif text-2xl font-semibold ${GRADE_TINT[e.has_quality_grade] ?? "bg-sage-100 text-foreground/70"}`}
+            >
               {e.has_quality_grade}
             </span>
             {e.has_score_100 != null && (
@@ -88,16 +97,16 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
             <legend className="text-sm font-semibold mb-2">
               Niveau d&apos;autonomie pour le coût estimé
             </legend>
-            <div className="inline-flex rounded-lg border border-sage-200 bg-white p-1 gap-1">
+            <div className="inline-flex flex-wrap rounded-3xl sm:rounded-full border border-sage-200 bg-white p-1 gap-1">
               {GIR_OPTIONS.map((o) => (
                 <button
                   key={o.value}
                   type="button"
                   onClick={() => setGir(o.value)}
                   aria-pressed={gir === o.value}
-                  className={`rounded-md px-4 py-2 text-sm min-h-[44px] transition-colors ${
+                  className={`rounded-full px-4 py-2 text-sm min-h-[44px] transition-colors ${
                     gir === o.value
-                      ? "bg-teal-600 text-white"
+                      ? "bg-coral-600 text-white font-semibold"
                       : "hover:bg-sage-100"
                   }`}
                 >
@@ -107,13 +116,13 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
             </div>
           </fieldset>
 
-          <div className="overflow-x-auto rounded-xl border border-sage-200 bg-white">
+          <div className="overflow-x-auto rounded-3xl border border-sage-200 bg-white">
             <table className="w-full min-w-[640px] text-left text-sm">
               <caption className="sr-only">
                 Comparaison des établissements sélectionnés
               </caption>
               <thead>
-                <tr className="border-b border-sage-200 align-bottom">
+                <tr className="border-b border-sage-200 align-bottom bg-warm-50">
                   <td className="p-4 w-40" />
                   {ehpads.map((e) => (
                     <th key={e.finess_geo} scope="col" className="p-4 align-top">
@@ -126,7 +135,7 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
                       <div className="mt-2">
                         <Link
                           href={href(ids.filter((i) => i !== e.finess_geo))}
-                          className="text-xs font-normal text-foreground/60 underline underline-offset-2 hover:text-rose-500"
+                          className="text-xs font-normal text-foreground/60 underline underline-offset-2 hover:text-coral-600"
                         >
                           Retirer
                         </Link>
@@ -137,7 +146,10 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.label} className="border-b border-sage-100 last:border-0">
+                  <tr
+                    key={r.label}
+                    className={`border-b border-sage-100 last:border-0 ${r.label === "Coût mensuel estimé" ? "bg-warm-100 font-semibold text-warm-700" : ""}`}
+                  >
                     <th scope="row" className="p-4 font-medium text-foreground/70">
                       {r.label}
                     </th>

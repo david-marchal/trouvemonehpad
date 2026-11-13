@@ -30,16 +30,21 @@ export default async function GuidePage({ params }: Props) {
   const others = GUIDES.filter((g) => g.slug !== guide.slug);
 
   return (
-    <article className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-      <nav className="text-sm text-foreground/60 mb-6">
-        <Link href="/guides" className="hover:text-teal-600">
-          Guides
-        </Link>
-      </nav>
-      <h1 className="text-3xl sm:text-4xl leading-tight">{guide.title}</h1>
-      <p className="mt-3 text-sm text-foreground/60">
-        Dernière vérification : {guide.verifiedOn}
-      </p>
+    <>
+    <div className="bg-gradient-to-b from-warm-100 to-coral-50 border-b border-sage-200">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <nav className="text-sm text-foreground/60 mb-5">
+          <Link href="/guides" className="hover:text-coral-600">
+            Guides
+          </Link>
+        </nav>
+        <h1 className="text-3xl sm:text-5xl leading-tight">{guide.title}</h1>
+        <p className="mt-3 text-sm text-foreground/65">
+          Dernière vérification : {guide.verifiedOn}
+        </p>
+      </div>
+    </div>
+    <article className="max-w-2xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16">
 
       {guide.sections.map((s) => (
         <section key={s.heading} className="mt-10">
@@ -50,7 +55,7 @@ export default async function GuidePage({ params }: Props) {
             </p>
           ))}
           {s.items && (
-            <ul className="mt-3 space-y-2 list-disc pl-5 marker:text-teal-400 leading-relaxed text-foreground/85">
+            <ul className="mt-3 space-y-2 list-disc pl-5 marker:text-coral-500 leading-relaxed text-foreground/85">
               {s.items.map((i) => (
                 <li key={i}>{i}</li>
               ))}
@@ -59,7 +64,7 @@ export default async function GuidePage({ params }: Props) {
         </section>
       ))}
 
-      <aside className="mt-12 border-l-4 border-warm-400 bg-warm-50 px-5 py-4">
+      <aside className="mt-12 rounded-3xl bg-sun-100 px-6 py-5">
         <h2 className="text-lg">Les limites de ce guide</h2>
         <p className="mt-2 text-foreground/80">{guide.limits}</p>
       </aside>
@@ -98,5 +103,6 @@ export default async function GuidePage({ params }: Props) {
         </ul>
       </section>
     </article>
+    </>
   );
 }

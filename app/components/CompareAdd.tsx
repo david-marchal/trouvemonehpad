@@ -61,11 +61,11 @@ export default function CompareAdd({ ids }: { ids: string[] }) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Nom de l'établissement ou ville"
-          className="flex-1 rounded-lg border border-sage-300 bg-white px-4 py-3 min-h-[44px]"
+          className="flex-1 min-w-0 rounded-full border border-sage-300 bg-white px-5 py-3 min-h-[44px]"
         />
         <button
           type="submit"
-          className="rounded-lg bg-teal-600 px-5 py-3 text-white font-medium min-h-[44px] hover:bg-teal-700 transition-colors"
+          className="rounded-full bg-coral-600 px-6 py-3 text-white font-semibold min-h-[44px] hover:bg-coral-700 transition-colors"
         >
           Chercher
         </button>
@@ -74,7 +74,7 @@ export default function CompareAdd({ ids }: { ids: string[] }) {
       <div aria-live="polite">
         {loading && <p className="mt-3 text-sm text-foreground/70">Recherche en cours…</p>}
         {error && (
-          <p className="mt-3 text-sm text-rose-500">
+          <p className="mt-3 text-sm text-coral-600">
             La recherche a échoué. Réessayez dans un instant.
           </p>
         )}
@@ -84,7 +84,7 @@ export default function CompareAdd({ ids }: { ids: string[] }) {
           </p>
         )}
         {hits && hits.length > 0 && (
-          <ul className="mt-3 divide-y divide-sage-200 rounded-lg border border-sage-200 bg-white">
+          <ul className="mt-3 divide-y divide-sage-200 rounded-2xl border border-sage-200 bg-white">
             {hits.map((h) => (
               <li key={h.finess_geo} className="flex items-center gap-3 px-4 py-3">
                 <div className="flex-1 min-w-0">
@@ -96,7 +96,7 @@ export default function CompareAdd({ ids }: { ids: string[] }) {
                 </div>
                 <Link
                   href={`/comparer?ids=${[...ids, h.finess_geo].join(",")}`}
-                  className="shrink-0 rounded-md border border-teal-600 px-3 py-2 text-sm font-medium text-teal-700 hover:bg-teal-50 min-h-[44px] inline-flex items-center"
+                  className="shrink-0 rounded-full bg-teal-100 px-4 py-2 text-sm font-semibold text-teal-700 hover:bg-teal-200 min-h-[44px] inline-flex items-center"
                 >
                   Ajouter
                 </Link>

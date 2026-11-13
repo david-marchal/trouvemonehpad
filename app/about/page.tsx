@@ -11,10 +11,15 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default function AboutPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-      <h1 className="text-3xl sm:text-4xl font-bold mb-6">
-        À propos de TrouveMonEHPAD
-      </h1>
+    <>
+    <div className="bg-gradient-to-b from-warm-100 to-coral-50 border-b border-sage-200">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <h1 className="text-3xl sm:text-5xl font-bold">
+          À propos de TrouveMonEHPAD
+        </h1>
+      </div>
+    </div>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
 
       <div className="prose prose-lg max-w-none space-y-6 text-foreground/70 leading-relaxed">
         <p className="text-xl text-foreground/80">
@@ -22,7 +27,7 @@ export default function AboutPage() {
           pour leurs proches, en s&apos;appuyant sur les données publiques officielles.
         </p>
 
-        <section className="bg-teal-50 rounded-2xl p-6 sm:p-8 border border-teal-100">
+        <section className="bg-teal-100 rounded-3xl p-6 sm:p-8">
           <h2 className="text-xl font-semibold text-teal-700 mb-3">
             Notre mission
           </h2>
@@ -85,11 +90,12 @@ export default function AboutPage() {
       <div className="mt-12 text-center">
         <Link
           href="/"
-          className="inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-full px-8 py-3 min-h-[44px] transition-colors w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-2 bg-coral-600 hover:bg-coral-700 text-white font-semibold rounded-full px-8 py-3 min-h-[44px] transition-colors w-full sm:w-auto"
         >
           Commencer une recherche
         </Link>
       </div>
     </div>
+    </>
   );
 }
