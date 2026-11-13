@@ -4,4 +4,4 @@
  * Tant que la valeur est null, les pages affichent un message d'attente
  * et aucune adresse n'est publiée.
  */
-export const CONTACT_EMAIL: string | null = null;
+export const CONTACT_EMAIL: string | null = "contact@trouvemonehpad.fr";
