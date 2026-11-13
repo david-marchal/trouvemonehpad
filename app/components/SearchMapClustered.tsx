@@ -60,12 +60,17 @@ function createMarkerIcon(grade: string | null, dailyPrice: number | null | unde
 const FRANCE_CENTER: L.LatLngExpression = [46.6, 2.2];
 const FRANCE_ZOOM = 6;
 
+export type FlyRequest = { id: number; points: [number, number][] };
+
 export default function SearchMapClustered({
   results,
+  flyRequest,
   onBoundsChange,
   onSearchInZone,
 }: {
   results: MapResult[];
+  /** Demande de déplacement de la carte, émise seulement après une recherche. */
+  flyRequest?: FlyRequest | null;
   onBoundsChange?: (bounds: { north: number; south: number; east: number; west: number }) => void;
   onSearchInZone?: (bounds: { north: number; south: number; east: number; west: number }) => void;
 }) {
@@ -203,44 +208,35 @@ export default function SearchMapClustered({
     updateMarkers(results);
   }, [results, updateMarkers]);
 
-  // Fly-to quand les résultats changent substantiellement (nouvelle recherche)
-  const prevFlyIdsRef = useRef<string>("");
+  // Déplacement de la carte : uniquement après une vraie recherche (champ de recherche),
+  // jamais quand l'utilisateur zoome ou déplace la carte lui-même.
+  const lastFlyIdRef = useRef(0);
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || results.length === 0) return;
-
-    const newIds = results.map((r) => r.finess_geo).join(",");
-    if (newIds === prevFlyIdsRef.current) return;
-
-    const prevIdSet = new Set(prevFlyIdsRef.current.split(",").filter(Boolean));
-    prevFlyIdsRef.current = newIds;
-
-    const newIdSet = new Set(results.map((r) => r.finess_geo));
-    const overlap = [...newIdSet].filter((id) => prevIdSet.has(id)).length;
-    const overlapRatio = prevIdSet.size > 0 ? overlap / prevIdSet.size : 0;
-
-    if (overlapRatio > 0.7 && prevIdSet.size > 5) return;
-
-    const geoResults = results.filter((r) => r.latitude != null && r.longitude != null);
-    if (geoResults.length === 0) return;
+    if (!map || !flyRequest || flyRequest.id === lastFlyIdRef.current) return;
+    if (flyRequest.points.length === 0) return;
 
     // Sur téléphone la carte est masquée (taille 0) : Leaflet ne sait pas
     // calculer le déplacement et fait planter toute la page. On ne bouge pas.
     const mapSize = map.getSize();
     if (mapSize.x === 0 || mapSize.y === 0) return;
 
-    // Masquer le bouton zone après un fly programmatique
-    setShowSearchZoneBtn(false);
+    lastFlyIdRef.current = flyRequest.id;
 
-    if (geoResults.length === 1) {
-      skipNextMoveRef.current = true;
-      map.flyTo([geoResults[0].latitude, geoResults[0].longitude], 13, { duration: 0.8 });
+    // Masquer le bouton zone après un déplacement programmatique
+    setShowSearchZoneBtn(false);
+    skipNextMoveRef.current = true;
+
+    if (flyRequest.points.length === 1) {
+      map.flyTo(flyRequest.points[0], 13, { duration: 0.8 });
     } else {
-      const bounds = L.latLngBounds(geoResults.map((r) => [r.latitude, r.longitude] as [number, number]));
-      skipNextMoveRef.current = true;
-      map.flyToBounds(bounds, { padding: [30, 30], maxZoom: 13, duration: 0.8 });
+      map.flyToBounds(L.latLngBounds(flyRequest.points), {
+        padding: [30, 30],
+        maxZoom: 13,
+        duration: 0.8,
+      });
     }
-  }, [results]);
+  }, [flyRequest]);
 
   const handleSearchInZoneClick = useCallback(() => {
     if (!currentBoundsRef.current || !onSearchInZone) return;

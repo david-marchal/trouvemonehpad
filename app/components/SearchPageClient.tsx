@@ -15,6 +15,8 @@ import CompareBar from "./CompareBar";
 import { MAX_COMPARE, useCompareSelection } from "../lib/compare-selection";
 import dynamic from "next/dynamic";
 
+import type { FlyRequest } from "./SearchMapClustered";
+
 const SearchMapClustered = dynamic(() => import("./SearchMapClustered"), {
   ssr: false,
   loading: () => (
@@ -135,6 +137,12 @@ function toMapResults(results: SearchResult[]): MapResult[] {
     }));
 }
 
+function toFlyPoints(results: SearchResult[]): [number, number][] {
+  return results
+    .filter((r) => r.latitude != null && r.longitude != null)
+    .map((r) => [r.latitude as number, r.longitude as number]);
+}
+
 function hasAlzheimerUnit(r: SearchResult): boolean {
   return !!(r.alzheimer_places && r.alzheimer_places > 0) || !!r.has_pasa || !!r.has_uhr;
 }
@@ -202,7 +210,7 @@ function QualityBadge({
     >
       <p className="text-[10px] font-medium uppercase tracking-wider">HAS</p>
       <p className="mt-0.5 text-xl font-bold leading-none">{grade}</p>
-      {score !== null ? (
+      {score != null ? (
         <p className="mt-1 text-[10px] opacity-75">{score.toFixed(1)}/100</p>
       ) : null}
     </div>
@@ -432,6 +440,11 @@ export default function SearchPageClient({
   const [aideSocialeFilter, setAideSocialeFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
   const [alzheimerFilter, setAlzheimerFilter] = useState(false);
+  // Déplacement de la carte : demandé seulement après une recherche, pas quand on zoome
+  const flyIdRef = useRef(initialResults.length > 0 ? 1 : 0);
+  const [flyRequest, setFlyRequest] = useState<FlyRequest | null>(() =>
+    initialResults.length > 0 ? { id: 1, points: toFlyPoints(initialResults) } : null
+  );
 
   const [results, setResults] = useState<SearchResult[]>(initialResults);
   // mapResults = résultats bruts de la carte (exploration sans recherche)
@@ -573,8 +586,14 @@ export default function SearchPageClient({
         }
 
         const data: SearchResult[] = await response.json();
+        flyIdRef.current += 1;
+        const request: FlyRequest = {
+          id: flyIdRef.current,
+          points: toFlyPoints(data),
+        };
         startTransition(() => {
           setResults(data);
+          setFlyRequest(request);
         });
       } catch {
         startTransition(() => {
@@ -673,6 +692,7 @@ export default function SearchPageClient({
           south: String(bounds.south),
           east: String(bounds.east),
           west: String(bounds.west),
+          details: "1",
         });
         const response = await fetch(`/api/ehpads?${params.toString()}`);
         if (!response.ok) throw new Error("Zone search failed");
@@ -1059,6 +1079,7 @@ export default function SearchPageClient({
       <div className="sticky top-[64px] hidden h-[calc(100vh-64px)] w-[45%] md:block">
         <SearchMapClustered
           results={stableFinalRef.current}
+          flyRequest={flyRequest}
           onBoundsChange={handleBoundsChange}
           onSearchInZone={handleSearchInZone}
         />
