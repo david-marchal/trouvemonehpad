@@ -1,7 +1,7 @@
 "use client";
 
 import { aideSociale } from "../lib/aide-sociale";
-import { PRICE_RANGES, priceInRange } from "../lib/cost";
+import { DAYS_PER_MONTH, PRICE_RANGES, euros, priceInRange } from "../lib/cost";
 import {
   startTransition,
   useCallback,
@@ -102,14 +102,14 @@ const GIR_OPTIONS = [
   { value: "56", label: "GIR 5-6 — Dépendance légère" },
 ];
 
-const RESULT_ROW_HEIGHT = 134;
+const RESULT_ROW_HEIGHT = 160;
 const RESULT_OVERSCAN = 8;
 
 const gradeColors: Record<string, string> = {
-  A: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  B: "bg-teal-50 text-teal-700 border-teal-200",
-  C: "bg-amber-50 text-amber-700 border-amber-200",
-  D: "bg-rose-50 text-rose-700 border-rose-200",
+  A: "bg-teal-100 text-teal-700 border-teal-200",
+  B: "bg-sky-100 text-sky-700 border-sky-200",
+  C: "bg-sun-100 text-sun-700 border-sun-200",
+  D: "bg-coral-100 text-coral-700 border-coral-100",
 };
 
 function normalizeRadius(radiusKm: number | undefined) {
@@ -181,7 +181,7 @@ function QualityBadge({
 }) {
   if (!grade) {
     return (
-      <div className="min-w-[72px] rounded-xl bg-sage-100 px-3 py-2 text-center">
+      <div className="min-w-[72px] rounded-2xl bg-sage-100 px-3 py-2 text-center">
         <p className="text-[10px] font-medium uppercase tracking-wider text-foreground/40">
           HAS
         </p>
@@ -192,7 +192,7 @@ function QualityBadge({
 
   return (
     <div
-      className={`min-w-[72px] rounded-xl border px-3 py-2 text-center ${gradeColors[grade] ?? "border-sage-200 bg-sage-100 text-foreground/70"}`}
+      className={`min-w-[72px] rounded-2xl border px-3 py-2 text-center ${gradeColors[grade] ?? "border-sage-200 bg-sage-100 text-foreground/70"}`}
     >
       <p className="text-[10px] font-medium uppercase tracking-wider">HAS</p>
       <p className="mt-0.5 text-xl font-bold leading-none">{grade}</p>
@@ -200,6 +200,26 @@ function QualityBadge({
         <p className="mt-1 text-[10px] opacity-75">{score.toFixed(1)}/100</p>
       ) : null}
     </div>
+  );
+}
+
+function PriceLine({ daily }: { daily: number | null | undefined }) {
+  if (daily == null || !(daily > 0)) {
+    return (
+      <p className="mt-2 text-xs text-foreground/50">Tarif non publié</p>
+    );
+  }
+
+  return (
+    <p
+      className="mt-2 text-sm text-foreground/70"
+      title="Prix de l'hébergement en chambre seule, hors tarif dépendance"
+    >
+      <span className="font-semibold text-warm-700">
+        {euros(daily * DAYS_PER_MONTH)}
+      </span>{" "}
+      <span className="text-xs text-foreground/55">/ mois, chambre seule</span>
+    </p>
   );
 }
 
@@ -218,16 +238,16 @@ function ResultCard({
     <div
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className={`h-full rounded-xl border bg-white p-4 transition-all duration-200 group ${
+      className={`h-full rounded-2xl border bg-white p-4 transition-all duration-200 group ${
         highlighted
-          ? "scale-[1.01] border-teal-400 shadow-md ring-1 ring-teal-200"
+          ? "scale-[1.01] border-coral-500 shadow-md ring-1 ring-coral-100"
           : "border-sage-200 shadow-sm hover:border-sage-300 hover:shadow-md"
       }`}
     >
       <Link href={`/etablissement/${result.finess_geo}`} className="block h-full">
         <div className="flex h-full items-start gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-teal-600">
+            <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-coral-600">
               {result.name}
             </h3>
             <p className="mt-1 truncate text-xs text-foreground/55">
@@ -247,6 +267,7 @@ function ResultCard({
                 </span>
               ) : null}
             </div>
+            <PriceLine daily={result.accommodation_price_single} />
           </div>
           <div className="flex-shrink-0">
             <QualityBadge
@@ -725,12 +746,12 @@ export default function SearchPageClient({
 
   return (
     <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
-      <div className="flex w-full flex-col border-r border-sage-200 bg-[#FFFBF7] md:w-[55%]">
-        <div className="border-b border-sage-100 p-4 pb-0">
+      <div className="flex w-full flex-col border-r border-sage-200 bg-background md:w-[55%]">
+        <div className="border-b border-sage-200 bg-gradient-to-b from-warm-100 to-coral-50 p-4 pb-0">
           <form onSubmit={handleSubmit} className="relative">
-            <div className="flex items-center rounded-xl border-2 border-sage-200 bg-white shadow-sm transition-all focus-within:border-teal-400 focus-within:shadow-md">
+            <div className="flex items-center rounded-full bg-white shadow-[0_4px_20px_rgba(23,40,43,0.12)] ring-1 ring-black/5 transition-all focus-within:ring-2 focus-within:ring-coral-500">
               <svg
-                className="ml-3.5 h-5 w-5 flex-shrink-0 text-foreground/30"
+                className="ml-4 h-5 w-5 flex-shrink-0 text-foreground/40"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -754,7 +775,7 @@ export default function SearchPageClient({
               />
               <button
                 type="submit"
-                className="mr-1.5 min-h-[44px] shrink-0 cursor-pointer rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-600 active:bg-teal-700"
+                className="mr-1.5 min-h-[44px] shrink-0 cursor-pointer rounded-full bg-coral-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-700 active:bg-coral-700"
               >
                 Rechercher
               </button>
@@ -809,7 +830,7 @@ export default function SearchPageClient({
             <select
               value={departmentFilter}
               onChange={(event) => setDepartmentFilter(event.target.value)}
-              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-lg border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-teal-400 focus:outline-none"
+              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-full border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-coral-500 focus:outline-none"
               style={{
                 backgroundImage:
                   'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%239ca3af\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',
@@ -831,7 +852,7 @@ export default function SearchPageClient({
             <select
               value={gradeFilter}
               onChange={(event) => setGradeFilter(event.target.value)}
-              className="min-h-[44px] min-w-[120px] cursor-pointer appearance-none rounded-lg border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-teal-400 focus:outline-none"
+              className="min-h-[44px] min-w-[120px] cursor-pointer appearance-none rounded-full border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-coral-500 focus:outline-none"
               style={{
                 backgroundImage:
                   'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%239ca3af\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',
@@ -849,7 +870,7 @@ export default function SearchPageClient({
             <select
               value={girFilter}
               onChange={(event) => setGirFilter(event.target.value)}
-              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-lg border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-teal-400 focus:outline-none"
+              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-full border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-coral-500 focus:outline-none"
               style={{
                 backgroundImage:
                   'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%239ca3af\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',
@@ -868,7 +889,7 @@ export default function SearchPageClient({
               value={priceFilter}
               onChange={(event) => setPriceFilter(event.target.value)}
               aria-label="Prix mensuel de la chambre seule"
-              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-lg border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-teal-400 focus:outline-none"
+              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-full border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-coral-500 focus:outline-none"
               style={{
                 backgroundImage:
                   'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%239ca3af\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',
@@ -884,14 +905,14 @@ export default function SearchPageClient({
               ))}
             </select>
 
-            <label className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-lg border border-sage-200 bg-white px-2.5 text-xs text-foreground/70">
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border border-sage-200 bg-white px-2.5 text-xs text-foreground/70">
               <input
                 type="checkbox"
                 checked={aideSocialeFilter === "oui"}
                 onChange={(event) =>
                   setAideSocialeFilter(event.target.checked ? "oui" : "")
                 }
-                className="h-4 w-4 accent-teal-500"
+                className="h-4 w-4 accent-coral-600"
               />
               Habilité aide sociale
             </label>
@@ -905,9 +926,9 @@ export default function SearchPageClient({
                 step={5}
                 value={radiusKm}
                 onChange={(event) => setRadiusKm(Number(event.target.value))}
-                className="h-2 w-20 cursor-pointer accent-teal-500"
+                className="h-2 w-20 cursor-pointer accent-coral-600"
               />
-              <span className="min-w-[40px] text-xs font-medium text-teal-600">
+              <span className="min-w-[40px] text-xs font-semibold text-coral-700">
                 {radiusKm === 0 ? "Exact" : `${radiusKm} km`}
               </span>
             </div>
