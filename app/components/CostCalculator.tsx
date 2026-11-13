@@ -21,15 +21,22 @@ export default function CostCalculator({
 }) {
   const [gir, setGir] = useState<GirGroup>("34");
   const [incomeText, setIncomeText] = useState("");
+  const [housingText, setHousingText] = useState("");
   const name = useId();
   const incomeId = useId();
+  const housingId = useId();
   const est = estimateMonthly(pricing, gir);
 
   const income = Number.parseFloat(incomeText.replace(",", "."));
   const hasIncome = Number.isFinite(income) && income > 0;
 
-  const low = est && est.apaPossible && est.avecApa != null ? est.avecApa : null;
-  const high = est ? est.sansApa : null;
+  // Aide au logement (APL ou ALS) saisie par l'utilisateur : elle réduit ce qu'il reste à payer.
+  const housingParsed = Number.parseFloat(housingText.replace(",", "."));
+  const housingAid = Number.isFinite(housingParsed) && housingParsed > 0 ? housingParsed : 0;
+  const rawLow = est && est.apaPossible && est.avecApa != null ? est.avecApa : null;
+  const rawHigh = est ? est.sansApa : null;
+  const low = rawLow != null ? Math.max(0, rawLow - housingAid) : null;
+  const high = rawHigh != null ? Math.max(0, rawHigh - housingAid) : null;
 
   return (
     <section className="bg-white rounded-3xl border border-sage-200 p-6">
@@ -95,6 +102,32 @@ export default function CostCalculator({
               ? "Le bas de la fourchette suppose que l'APA couvre la dépendance, sauf le ticket modérateur (tarif GIR 5-6). Le haut ne compte aucune aide. Votre montant réel dépend de vos revenus et de votre département."
               : "Pour les GIR 5 et 6, la dépendance reste à la charge du résident : l'APA ne s'applique pas."}
           </p>
+
+          <div className="mt-5">
+            <label htmlFor={housingId} className="block text-sm font-medium">
+              Aide au logement versée par la CAF (facultatif)
+            </label>
+            <p className="text-xs text-foreground/60">
+              APL ou ALS. Le montant dépend des ressources et de l&apos;établissement :
+              seule la CAF peut le calculer (simulateur sur caf.fr).
+            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                id={housingId}
+                inputMode="decimal"
+                value={housingText}
+                onChange={(e) => setHousingText(e.target.value)}
+                placeholder="150"
+                className="min-h-[44px] w-40 rounded-full border border-sage-200 px-4 text-base focus:border-coral-500 focus:outline-none"
+              />
+              <span className="text-sm text-foreground/60">€ par mois</span>
+            </div>
+            {housingAid > 0 ? (
+              <p className="mt-2 text-sm text-foreground/75">
+                Ce montant est déjà retiré des estimations ci-dessus.
+              </p>
+            ) : null}
+          </div>
 
           <div className="mt-5 rounded-2xl bg-sun-100/50 p-4">
             <h3 className="text-base font-semibold">Et avec la réduction d&apos;impôt ?</h3>
@@ -174,7 +207,7 @@ export default function CostCalculator({
             </p>
           ) : null}
           <p className="mt-4 text-xs text-foreground/55">
-            Estimation indicative. Les aides au logement ne sont pas déduites.
+            Estimation indicative. Sans montant saisi, les aides au logement ne sont pas déduites.
           </p>
         </div>
       ) : (
