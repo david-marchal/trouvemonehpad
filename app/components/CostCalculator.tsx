@@ -97,22 +97,25 @@ export default function CostCalculator({
           </p>
 
           <div className="mt-5 rounded-2xl bg-sun-100/50 p-4">
-            <h3 className="text-base font-semibold">Avec la réduction d&apos;impôt</h3>
+            <h3 className="text-base font-semibold">Et avec la réduction d&apos;impôt ?</h3>
             <p className="mt-1 font-serif text-2xl font-semibold text-sun-700">
               {low != null
                 ? `${euros(monthlyAfterTaxReduction(low))} à ${euros(monthlyAfterTaxReduction(high))}`
                 : euros(monthlyAfterTaxReduction(high))}
               <span className="text-base font-normal text-foreground/60">
                 {" "}
-                par mois en moyenne
+                par mois
               </span>
             </p>
             <p className="mt-2 text-sm text-foreground/75 leading-relaxed">
-              La réduction d&apos;impôt est de 25 % des frais d&apos;hébergement et de
-              dépendance restant à votre charge, dans la limite de 10 000 € par an
-              et par personne, soit 2 500 € au maximum. Elle est déduite de votre
-              impôt l&apos;année suivante, à la déclaration de revenus : vérifiez
-              votre situation sur impots.gouv.fr.
+              L&apos;État vous rend une partie de ce que vous payez à l&apos;EHPAD :
+              <strong> jusqu&apos;à 2 500 € par an</strong>, soit environ 208 € par
+              mois. Cette somme est déduite de votre impôt sur le revenu, l&apos;année
+              suivante, quand vous remplissez votre déclaration.
+            </p>
+            <p className="mt-2 text-sm text-foreground/75 leading-relaxed">
+              Elle dépend de la situation fiscale de celui qui paie : pour savoir ce
+              que vous pouvez en attendre, consultez impots.gouv.fr.
             </p>
           </div>
 
