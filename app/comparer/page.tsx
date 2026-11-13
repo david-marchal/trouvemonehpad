@@ -42,12 +42,6 @@ export default async function ComparerPage({ searchParams }: Props) {
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        <p className="max-w-2xl rounded-2xl bg-sun-100 px-5 py-4 text-sm text-foreground/85">
-          La HAS ne conçoit pas ses évaluations comme un classement. Deux
-          notes voisines ne veulent pas dire que deux établissements se
-          valent, ni qu&apos;ils s&apos;adressent aux mêmes personnes.
-          Servez-vous de ce tableau pour préparer vos visites.
-        </p>
         <CompareView ehpads={ehpads} />
       </div>
     </>

@@ -89,7 +89,7 @@ export default async function Home() {
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="relative col-span-2 lg:row-span-2 min-h-56 sm:min-h-72 overflow-hidden rounded-3xl bg-sage-100">
+          <div className="relative col-span-2 min-h-56 sm:min-h-64 overflow-hidden rounded-3xl bg-sage-100">
             <Image
               src="/hero.jpg"
               alt="Les mains de deux personnes âgées, l'une posée sur l'autre"
@@ -112,22 +112,6 @@ export default async function Home() {
               {stats ? formatNumber(stats.evaluated) : "HAS"}
             </p>
             <p className="font-medium">évalués par la HAS</p>
-          </div>
-
-          <div className="rounded-3xl bg-sun-100 text-sun-700 p-5 sm:p-6 flex flex-col justify-between min-h-36">
-            <p className="font-serif text-2xl sm:text-3xl font-semibold leading-tight">
-              {stats?.updatedAt
-                ? formatDateFr(stats.updatedAt)
-                : "Chaque jour"}
-            </p>
-            <p className="font-medium">dernière mise à jour</p>
-          </div>
-
-          <div className="rounded-3xl bg-coral-100 text-coral-700 p-5 sm:p-6 flex flex-col justify-between min-h-36">
-            <p className="font-serif text-2xl sm:text-3xl font-semibold leading-tight">
-              Aucune publicité
-            </p>
-            <p className="font-medium">aucun EHPAD ne paie pour apparaître</p>
           </div>
         </div>
       </section>
@@ -169,46 +153,27 @@ export default async function Home() {
         </ul>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
-        <h2 className="text-2xl sm:text-3xl">Un site indépendant</h2>
-        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-3xl bg-teal-100 p-6 text-teal-700">
-            <h3 className="text-lg font-semibold">Sans publicité, sans rappel</h3>
-            <p className="mt-2 text-sm leading-relaxed">
-              Aucun établissement ne paie pour apparaître ici, et personne ne vous
-              rappelle : pas de formulaire de contact, pas de démarchage.
-            </p>
-          </div>
-          <div className="rounded-3xl bg-sky-100 p-6 text-sky-700">
-            <h3 className="text-lg font-semibold">Des données officielles</h3>
-            <p className="mt-2 text-sm leading-relaxed">
-              Annuaire FINESS, évaluations de la Haute Autorité de santé, tarifs de
-              la CNSA.{" "}
-              {stats?.updatedAt
-                ? `Dernière mise à jour le ${formatDateFr(stats.updatedAt)}.`
-                : "Mises à jour chaque jour."}
-            </p>
-          </div>
-          <div className="rounded-3xl bg-warm-100 p-6 text-warm-700">
-            <h3 className="text-lg font-semibold">Nos limites, dites franchement</h3>
-            <p className="mt-2 text-sm leading-relaxed">
-              Nous ne connaissons pas les places disponibles et nous n&apos;avons pas
-              d&apos;avis de familles.{" "}
-              <Link href="/about" className="font-semibold underline underline-offset-2">
-                Nos sources et nos limites
-              </Link>
-            </p>
-          </div>
-        </div>
-        <p className="mt-6 text-sm text-foreground/70">
-          Vous préférez parcourir ?{" "}
-          <Link href="/ehpad" className="font-semibold text-teal-600 underline underline-offset-2 hover:text-teal-700">
-            Les EHPAD par département
-          </Link>
-        </p>
-      </section>
-
       <section className="border-t border-sage-200 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 grid grid-cols-1 gap-4 text-sm leading-relaxed text-foreground/70 md:grid-cols-3">
+          <p>
+            <strong className="text-foreground">Sans publicité.</strong> Aucun
+            établissement ne paie pour apparaître ici, et personne ne vous rappelle.
+          </p>
+          <p>
+            <strong className="text-foreground">Données officielles.</strong> FINESS,
+            Haute Autorité de santé, CNSA.{" "}
+            {stats?.updatedAt
+              ? `Mises à jour le ${formatDateFr(stats.updatedAt)}.`
+              : "Mises à jour chaque jour."}
+          </p>
+          <p>
+            <strong className="text-foreground">Nos limites.</strong> Places
+            disponibles et avis de familles ne sont pas connus.{" "}
+            <Link href="/about" className="font-semibold text-teal-600 underline underline-offset-2">
+              En savoir plus
+            </Link>
+          </p>
+        </div>
         <p className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-foreground/70">
           Ce site ne classe pas les EHPAD : la HAS ne conçoit pas ses
           évaluations comme un palmarès. Vous hésitez entre deux adresses ?{" "}
@@ -217,6 +182,13 @@ export default async function Home() {
             className="font-semibold text-teal-600 underline underline-offset-2 hover:text-teal-700"
           >
             Comparez-les côte à côte
+          </Link>
+          . Vous préférez parcourir ?{" "}
+          <Link
+            href="/ehpad"
+            className="font-semibold text-teal-600 underline underline-offset-2 hover:text-teal-700"
+          >
+            Les EHPAD par département
           </Link>
           .
         </p>
