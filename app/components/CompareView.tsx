@@ -95,7 +95,7 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
         <>
           <fieldset className="mb-5">
             <legend className="text-sm font-semibold mb-2">
-              Niveau d&apos;autonomie pour le coût estimé
+              Niveau de dépendance pour le coût estimé
             </legend>
             <div className="inline-flex flex-wrap rounded-3xl sm:rounded-full border border-sage-200 bg-white p-1 gap-1">
               {GIR_OPTIONS.map((o) => (
@@ -111,6 +111,7 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
                   }`}
                 >
                   {o.label}
+                  <span className="ml-1.5 text-xs opacity-75">{o.hint}</span>
                 </button>
               ))}
             </div>
@@ -164,7 +165,7 @@ export default function CompareView({ ehpads }: { ehpads: EhpadDetail[] }) {
             </table>
           </div>
           <p className="mt-3 text-xs text-foreground/65 max-w-2xl">
-            Coût estimé en chambre seule, mois de 30 jours. Pour un GIR 1 à 4,
+            Coût estimé en chambre seule, mois de 30 jours. Pour une dépendance forte ou modérée (GIR 1 à 4),
             le bas de la fourchette suppose que l&apos;APA couvre la dépendance
             hors ticket modérateur. Les revenus, l&apos;aide au logement et la
             réduction d&apos;impôt ne sont pas pris en compte.

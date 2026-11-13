@@ -433,15 +433,15 @@ export default async function EtablissementPage({ params }: Props) {
                 {(ehpad.dependency_tariff_gir_12 != null || ehpad.dependency_tariff_gir_34 != null || ehpad.dependency_tariff_gir_56 != null) && (
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <p className="text-xs uppercase tracking-wide text-foreground/45">Tarif dépendance (GIR)</p>
+                      <p className="text-xs uppercase tracking-wide text-foreground/45">Tarif selon la dépendance</p>
                       <span className="text-xs text-foreground/35 italic">financé en partie par l&apos;APA</span>
                     </div>
                     <div className="space-y-2 text-sm">
                       {ehpad.dependency_tariff_gir_12 != null && (
                         <div className="flex items-center gap-3 rounded-2xl border border-coral-100 bg-coral-50 px-4 py-3">
                           <div className="flex-1">
-                            <p className="font-medium text-coral-700">GIR 1 &amp; 2</p>
-                            <p className="text-xs text-coral-600 mt-0.5">Dépendance totale — aide permanente</p>
+                            <p className="font-medium text-coral-700">Dépendance forte</p>
+                            <p className="text-xs text-coral-600 mt-0.5">GIR 1 et 2 · aide permanente</p>
                           </div>
                           <p className="font-semibold text-coral-700 whitespace-nowrap">{ehpad.dependency_tariff_gir_12.toFixed(2)} €/jour</p>
                         </div>
@@ -449,8 +449,8 @@ export default async function EtablissementPage({ params }: Props) {
                       {ehpad.dependency_tariff_gir_34 != null && (
                         <div className="flex items-center gap-3 rounded-2xl border border-sun-200 bg-sun-100 px-4 py-3">
                           <div className="flex-1">
-                            <p className="font-medium text-sun-700">GIR 3 &amp; 4</p>
-                            <p className="text-xs text-sun-700 mt-0.5">Dépendance partielle — aide quotidienne</p>
+                            <p className="font-medium text-sun-700">Dépendance modérée</p>
+                            <p className="text-xs text-sun-700 mt-0.5">GIR 3 et 4 · aide quotidienne</p>
                           </div>
                           <p className="font-semibold text-sun-700 whitespace-nowrap">{ehpad.dependency_tariff_gir_34.toFixed(2)} €/jour</p>
                         </div>
@@ -458,15 +458,15 @@ export default async function EtablissementPage({ params }: Props) {
                       {ehpad.dependency_tariff_gir_56 != null && (
                         <div className="flex items-center gap-3 rounded-2xl border border-teal-200 bg-teal-100 px-4 py-3">
                           <div className="flex-1">
-                            <p className="font-medium text-teal-800">GIR 5 &amp; 6</p>
-                            <p className="text-xs text-teal-600 mt-0.5">Dépendance légère — aide ponctuelle</p>
+                            <p className="font-medium text-teal-800">Dépendance légère</p>
+                            <p className="text-xs text-teal-600 mt-0.5">GIR 5 et 6 · aide ponctuelle</p>
                           </div>
                           <p className="font-semibold text-teal-800 whitespace-nowrap">{ehpad.dependency_tariff_gir_56.toFixed(2)} €/jour</p>
                         </div>
                       )}
                     </div>
                     <p className="mt-3 text-xs text-foreground/40">
-                      Le GIR (Groupe Iso-Ressources) mesure le niveau de dépendance de 1 (très dépendant) à 6 (autonome). Il détermine le tarif dépendance et l&apos;éligibilité à l&apos;APA (Allocation Personnalisée d&apos;Autonomie).
+                      Le niveau de dépendance de votre proche est mesuré par son groupe GIR, de 1 (très dépendant) à 6 (autonome). Il détermine le tarif ci-dessus et l&apos;éligibilité à l&apos;APA (Allocation Personnalisée d&apos;Autonomie).
                     </p>
                   </div>
                 )}

@@ -70,3 +70,63 @@ h2 {
   background: var(--color-teal-200);
   color: var(--color-teal-700);
 }
+
+/* Carte : pastilles de prix et regroupements sobres */
+.ehpad-marker {
+  background: none;
+  border: none;
+}
+
+.price-pill {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 1px 6px rgba(23, 40, 43, 0.28);
+  border: 1px solid rgba(23, 40, 43, 0.08);
+  transition: transform 0.12s ease, background-color 0.12s ease, color 0.12s ease;
+}
+
+.price-pill:hover {
+  transform: translate(-50%, -50%) scale(1.08);
+  background: var(--color-coral-600);
+  color: #fff;
+}
+
+.price-pill--empty {
+  padding: 5px;
+}
+
+.price-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.marker-cluster,
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-color: rgba(23, 40, 43, 0.16);
+}
+
+.marker-cluster div,
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background-color: var(--color-foreground);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-weight: 700;
+}

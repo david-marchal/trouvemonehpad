@@ -5,7 +5,7 @@ export const SITE_URL = "https://trouvemonehpad.vercel.app";
 export const SITE_TAGLINE = "Les évaluations officielles des EHPAD, lisibles par les familles";
 export const HOME_TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
 export const SITE_DESCRIPTION =
-  "Note HAS, tarifs d'hébergement et de dépendance, carte et fiche de chaque EHPAD de France. Estimez le coût mensuel selon le GIR et comparez 2 ou 3 établissements.";
+  "Note HAS, tarifs d'hébergement et de dépendance, carte et fiche de chaque EHPAD de France. Estimez le coût mensuel selon le niveau de dépendance et comparez 2 ou 3 établissements.";
 
 type PageMetadataOptions = {
   title: string;

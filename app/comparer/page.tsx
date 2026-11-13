@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   ...buildPageMetadata({
     title: `Comparer des EHPAD côte à côte | ${SITE_NAME}`,
     description:
-      "Mettez 2 ou 3 EHPAD côte à côte : note HAS, places, tarifs et coût mensuel estimé selon le GIR.",
+      "Mettez 2 ou 3 EHPAD côte à côte : note HAS, places, tarifs et coût mensuel estimé selon le niveau de dépendance.",
     path: "/comparer",
   }),
   robots: { index: false, follow: true },
@@ -37,7 +37,7 @@ export default async function ComparerPage({ searchParams }: Props) {
           </h1>
           <p className="mt-3 text-lg text-foreground/70 max-w-2xl">
             Jusqu&apos;à trois établissements côte à côte, avec le coût
-            mensuel estimé selon le niveau d&apos;autonomie.
+            mensuel estimé selon le niveau de dépendance.
           </p>
         </div>
       </div>

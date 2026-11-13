@@ -15,6 +15,7 @@ type MapResult = {
   capacity_total: number | null;
   latitude: number;
   longitude: number;
+  accommodation_price_single?: number | null;
 };
 
 const GRADE_COLORS: Record<string, string> = {
@@ -28,20 +29,31 @@ function gradeColor(grade: string | null) {
   return grade ? GRADE_COLORS[grade] || "#94a3b8" : "#94a3b8";
 }
 
-function createMarkerIcon(grade: string | null) {
+const DAYS_PER_MONTH = 30;
+
+// Pastille de prix : « 2 355 € » (chambre seule, par mois). Sans tarif publié,
+// on affiche une petite pastille neutre. Le point de couleur rappelle la note HAS.
+function createMarkerIcon(grade: string | null, dailyPrice: number | null | undefined) {
   const color = gradeColor(grade);
+  const dot = `<span class="price-pill-dot" style="background:${color}"></span>`;
+  if (dailyPrice != null && dailyPrice > 0) {
+    const label = new Intl.NumberFormat("fr-FR", {
+      maximumFractionDigits: 0,
+    }).format(Math.round(dailyPrice * DAYS_PER_MONTH));
+    return L.divIcon({
+      className: "ehpad-marker",
+      html: `<div class="price-pill">${dot}${label}&nbsp;€</div>`,
+      iconSize: [0, 0],
+      iconAnchor: [0, 0],
+      popupAnchor: [0, -14],
+    });
+  }
   return L.divIcon({
     className: "ehpad-marker",
-    html: `<div style="
-      width:12px;height:12px;
-      background:${color};
-      border:2px solid white;
-      border-radius:50%;
-      box-shadow:0 1px 4px rgba(0,0,0,0.3);
-    "></div>`,
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
-    popupAnchor: [0, -6],
+    html: `<div class="price-pill price-pill--empty" title="Tarif non publié">${dot}</div>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+    popupAnchor: [0, -10],
   });
 }
 
@@ -87,16 +99,18 @@ export default function SearchMapClustered({
       zoomControl: false,
     });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap",
-      maxZoom: 18,
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: "abcd",
+      maxZoom: 19,
     }).addTo(map);
 
     L.control.zoom({ position: "topright" }).addTo(map);
 
     const cluster = (L as unknown as { markerClusterGroup: (opts?: object) => L.MarkerClusterGroup }).markerClusterGroup({
       chunkedLoading: true,
-      maxClusterRadius: 50,
+      maxClusterRadius: 60,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       disableClusteringAtZoom: 16,
@@ -152,7 +166,7 @@ export default function SearchMapClustered({
       .filter((r) => r.latitude != null && r.longitude != null)
       .map((r) => {
         const marker = L.marker([r.latitude, r.longitude], {
-          icon: createMarkerIcon(r.has_quality_grade),
+          icon: createMarkerIcon(r.has_quality_grade, r.accommodation_price_single),
         });
 
         const gradeHtml = r.has_quality_grade

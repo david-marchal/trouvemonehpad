@@ -110,15 +110,15 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "gir-et-apa",
-    title: "Le GIR et l'APA en établissement",
+    title: "La dépendance (GIR) et l'APA en établissement",
     summary:
       "Comment le niveau de dépendance fixe votre tarif et ce que l'APA prend en charge.",
     verifiedOn: GUIDES_VERIFIED_ON,
     sections: [
       {
-        heading: "Le GIR, en une phrase",
+        heading: "Le niveau de dépendance, en une phrase",
         paragraphs: [
-          "Le GIR (groupe iso-ressources) classe une personne de 1 à 6 selon son niveau de perte d'autonomie, mesuré avec la grille AGGIR. GIR 1 : la dépendance la plus lourde. GIR 6 : la personne est autonome pour les gestes de la vie courante.",
+          "Le niveau de dépendance d'une personne est mesuré par son GIR (groupe iso-ressources), de 1 à 6, selon sa perte d'autonomie, mesuré avec la grille AGGIR. GIR 1 : la dépendance la plus lourde. GIR 6 : la personne est autonome pour les gestes de la vie courante.",
           "Les tarifs de dépendance d'un EHPAD sont fixés par groupe : GIR 1-2, GIR 3-4, GIR 5-6.",
         ],
       },

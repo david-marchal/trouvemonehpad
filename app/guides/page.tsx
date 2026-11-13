@@ -6,7 +6,7 @@ import { SITE_NAME, buildPageMetadata } from "../lib/seo";
 export const metadata: Metadata = buildPageMetadata({
   title: `Guides pour choisir un EHPAD | ${SITE_NAME}`,
   description:
-    "Lire une évaluation HAS, comprendre le coût d'un EHPAD, le GIR et l'APA, préparer une visite : quatre guides sourcés pour les familles.",
+    "Lire une évaluation HAS, comprendre le coût d'un EHPAD, la dépendance et l'APA, préparer une visite : quatre guides sourcés pour les familles.",
   path: "/guides",
 });
 

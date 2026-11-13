@@ -95,20 +95,22 @@ export async function GET(request: NextRequest) {
   if (bounds) {
     const results = await sql`
       SELECT
-        finess_geo,
-        name,
-        city,
-        has_quality_grade,
-        capacity_total,
-        mft_code,
-        latitude::float8 AS latitude,
-        longitude::float8 AS longitude
-      FROM ehpad_establishments
+        e.finess_geo,
+        e.name,
+        e.city,
+        e.has_quality_grade,
+        e.capacity_total,
+        e.mft_code,
+        e.latitude::float8 AS latitude,
+        e.longitude::float8 AS longitude,
+        p.accommodation_price_single::float8 AS accommodation_price_single
+      FROM ehpad_establishments e
+      LEFT JOIN ehpad_pricing p ON p.finess_geo = e.finess_geo
       WHERE
-        latitude IS NOT NULL
-        AND longitude IS NOT NULL
-        AND latitude BETWEEN ${bounds.south} AND ${bounds.north}
-        AND longitude BETWEEN ${bounds.west} AND ${bounds.east}
+        e.latitude IS NOT NULL
+        AND e.longitude IS NOT NULL
+        AND e.latitude BETWEEN ${bounds.south} AND ${bounds.north}
+        AND e.longitude BETWEEN ${bounds.west} AND ${bounds.east}
     `;
 
     return jsonUtf8(results.map((row) => repairRecordStrings(row)));
@@ -146,16 +148,18 @@ export async function GET(request: NextRequest) {
   // Default: return all markers (lightweight)
   const results = await sql`
     SELECT
-      finess_geo,
-      name,
-      city,
-      has_quality_grade,
-      capacity_total,
-        mft_code,
-      latitude::float8 AS latitude,
-      longitude::float8 AS longitude
-    FROM ehpad_establishments
-    WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+      e.finess_geo,
+      e.name,
+      e.city,
+      e.has_quality_grade,
+      e.capacity_total,
+      e.mft_code,
+      e.latitude::float8 AS latitude,
+      e.longitude::float8 AS longitude,
+      p.accommodation_price_single::float8 AS accommodation_price_single
+    FROM ehpad_establishments e
+    LEFT JOIN ehpad_pricing p ON p.finess_geo = e.finess_geo
+    WHERE e.latitude IS NOT NULL AND e.longitude IS NOT NULL
   `;
 
   return jsonUtf8(results.map((row) => repairRecordStrings(row)));

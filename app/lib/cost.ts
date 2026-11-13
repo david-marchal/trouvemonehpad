@@ -1,9 +1,9 @@
 export type GirGroup = "12" | "34" | "56";
 
 export const GIR_OPTIONS: { value: GirGroup; label: string; hint: string }[] = [
-  { value: "12", label: "GIR 1-2", hint: "aide permanente" },
-  { value: "34", label: "GIR 3-4", hint: "aide quotidienne" },
-  { value: "56", label: "GIR 5-6", hint: "aide ponctuelle" },
+  { value: "12", label: "Dépendance forte", hint: "GIR 1-2" },
+  { value: "34", label: "Dépendance modérée", hint: "GIR 3-4" },
+  { value: "56", label: "Dépendance légère", hint: "GIR 5-6" },
 ];
 
 export const DAYS_PER_MONTH = 30;

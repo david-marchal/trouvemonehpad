@@ -19,8 +19,8 @@ export default function CostCalculator({ pricing }: { pricing: Pricing }) {
     <section className="bg-white rounded-3xl border border-sage-200 p-6">
       <h2 className="text-xl">Estimer le coût mensuel</h2>
       <p className="mt-1 text-sm text-foreground/70">
-        Chambre seule, mois de 30 jours. Choisissez le niveau d&apos;autonomie
-        de votre proche.
+        Chambre seule, mois de 30 jours. Choisissez le niveau de dépendance
+        de votre proche (son groupe GIR est indiqué dessous).
       </p>
 
       <fieldset className="mt-4">

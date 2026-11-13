@@ -55,6 +55,7 @@ type MapResult = {
   capacity_total: number | null;
   latitude: number;
   longitude: number;
+  accommodation_price_single?: number | null;
 };
 
 type SelectedLocation = {
@@ -96,10 +97,10 @@ const GRADE_OPTIONS = [
 ];
 
 const GIR_OPTIONS = [
-  { value: "", label: "Tous niveaux GIR" },
-  { value: "12", label: "GIR 1-2 — Dépendance totale" },
-  { value: "34", label: "GIR 3-4 — Dépendance partielle" },
-  { value: "56", label: "GIR 5-6 — Dépendance légère" },
+  { value: "", label: "Niveau de dépendance" },
+  { value: "12", label: "Dépendance forte (GIR 1-2)" },
+  { value: "34", label: "Dépendance modérée (GIR 3-4)" },
+  { value: "56", label: "Dépendance légère (GIR 5-6)" },
 ];
 
 const RESULT_ROW_HEIGHT = 160;
@@ -130,6 +131,7 @@ function toMapResults(results: SearchResult[]): MapResult[] {
       capacity_total: result.capacity_total,
       latitude: result.latitude!,
       longitude: result.longitude!,
+      accommodation_price_single: result.accommodation_price_single ?? null,
     }));
 }
 

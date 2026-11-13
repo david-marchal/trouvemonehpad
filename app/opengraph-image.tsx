@@ -54,7 +54,7 @@ export default function OpenGraphImage() {
         </div>
 
         <div style={{ fontSize: 30, color: "#3B4F52", fontFamily: "sans-serif" }}>
-          Note HAS, tarifs, carte et coût mensuel estimé selon le GIR.
+          Note HAS, tarifs, carte et coût mensuel estimé selon le niveau de dépendance.
         </div>
       </div>
     ),
