@@ -16,7 +16,7 @@ export default function CostCalculator({ pricing }: { pricing: Pricing }) {
   const est = estimateMonthly(pricing, gir);
 
   return (
-    <section className="bg-white rounded-xl border border-sage-200 p-6">
+    <section className="bg-white rounded-3xl border border-sage-200 p-6">
       <h2 className="text-xl">Estimer le coût mensuel</h2>
       <p className="mt-1 text-sm text-foreground/70">
         Chambre seule, mois de 30 jours. Choisissez le niveau d&apos;autonomie
@@ -65,11 +65,11 @@ export default function CostCalculator({ pricing }: { pricing: Pricing }) {
             </span>
           </p>
           <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="bg-sage-50 rounded-lg p-3">
+            <div className="bg-sage-50 rounded-2xl p-3">
               <dt className="text-foreground/65">Hébergement</dt>
               <dd className="font-semibold mt-0.5">{euros(est.hebergement)}</dd>
             </div>
-            <div className="bg-sage-50 rounded-lg p-3">
+            <div className="bg-sage-50 rounded-2xl p-3">
               <dt className="text-foreground/65">Dépendance, sans aide</dt>
               <dd className="font-semibold mt-0.5">
                 {euros(est.dependanceTotale)}

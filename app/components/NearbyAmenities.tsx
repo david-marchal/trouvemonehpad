@@ -11,7 +11,7 @@ const FALLBACK_MESSAGE = "Données non disponibles pour le moment";
 
 function SectionShell({ children }: { children: ReactNode }) {
   return (
-    <section className="bg-white rounded-xl border border-sage-200 p-6">
+    <section className="bg-white rounded-3xl border border-sage-200 p-6">
       <h2 className="text-lg font-semibold mb-4">{SECTION_TITLE}</h2>
       {children}
     </section>
@@ -220,7 +220,7 @@ export default function NearbyAmenities({
           return (
             <div
               key={key}
-              className={`flex items-center gap-3 rounded-xl border px-3 py-3 ${
+              className={`flex items-center gap-3 rounded-2xl border px-3 py-3 ${
                 isPresent
                   ? "border-emerald-200 bg-emerald-50"
                   : "border-sage-200 bg-sage-50"

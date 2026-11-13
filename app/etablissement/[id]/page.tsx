@@ -51,10 +51,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const gradeConfig: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  A: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", label: "Excellent" },
-  B: { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200", label: "Bon" },
-  C: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", label: "Acceptable" },
-  D: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200", label: "Insuffisant" },
+  A: { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200", label: "Excellent" },
+  B: { bg: "bg-sky-100", text: "text-sky-700", border: "border-sky-200", label: "Bon" },
+  C: { bg: "bg-sun-100", text: "text-sun-700", border: "border-sun-200", label: "Acceptable" },
+  D: { bg: "bg-coral-100", text: "text-coral-700", border: "border-coral-100", label: "Insuffisant" },
 };
 
 // Statut juridique — label + couleur de badge
@@ -186,7 +186,8 @@ export default async function EtablissementPage({ params }: Props) {
   return (
     <>
       <JsonLd ehpad={ehpad} />
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <div className="border-b border-sage-200 bg-gradient-to-b from-warm-100 to-coral-50">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-8">
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm text-foreground/50">
           <Link href="/" className="hover:text-teal-600 transition-colors">
@@ -201,7 +202,7 @@ export default async function EtablissementPage({ params }: Props) {
         </nav>
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
+        <div className="flex flex-col md:flex-row md:items-start gap-6">
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
               {ehpad.name}
@@ -209,7 +210,7 @@ export default async function EtablissementPage({ params }: Props) {
             <p className="mt-2 text-foreground/60">{fullAddress}</p>
             <div className="mt-3 flex flex-wrap gap-2 text-sm">
               {ehpad.department_code && ehpad.department_name && (
-                <span className="bg-sage-50 text-foreground/60 rounded-full px-3 py-1">
+                <span className="bg-sky-100 text-sky-700 rounded-full px-3 py-1 font-medium">
                   {ehpad.department_code} · {ehpad.department_name}
                 </span>
               )}
@@ -231,7 +232,7 @@ export default async function EtablissementPage({ params }: Props) {
                 <span
                   className={`rounded-full px-3 py-1 border font-medium ${
                     aideSociale(ehpad.mft_code) === "oui"
-                      ? "bg-teal-50 text-teal-700 border-teal-200"
+                      ? "bg-teal-100 text-teal-700 border-teal-200"
                       : "bg-sage-50 text-foreground/60 border-sage-200"
                   }`}
                 >
@@ -244,7 +245,7 @@ export default async function EtablissementPage({ params }: Props) {
           {/* HAS Grade Badge */}
           {gc && grade ? (
             <div
-              className={`flex-shrink-0 rounded-2xl border ${gc.bg} ${gc.border} px-6 py-5 text-center min-w-[140px]`}
+              className={`flex-shrink-0 rounded-3xl border ${gc.bg} ${gc.border} px-6 py-5 text-center min-w-[140px]`}
             >
               <p className={`text-xs uppercase tracking-wide font-medium ${gc.text}`}>
                 Évaluation HAS
@@ -255,10 +256,10 @@ export default async function EtablissementPage({ params }: Props) {
                   {ehpad.has_score_100.toFixed(1)}/100
                 </p>
               )}
-              <p className={`mt-1 text-xs ${gc.text}/70`}>{gc.label}</p>
+              <p className={`mt-1 text-xs ${gc.text}`}>{gc.label}</p>
             </div>
           ) : (
-            <div className="flex-shrink-0 rounded-2xl bg-sage-100 px-6 py-5 text-center min-w-[140px]">
+            <div className="flex-shrink-0 rounded-3xl bg-sage-100 px-6 py-5 text-center min-w-[140px]">
               <p className="text-xs uppercase tracking-wide text-foreground/45">
                 Évaluation HAS
               </p>
@@ -269,8 +270,54 @@ export default async function EtablissementPage({ params }: Props) {
           )}
         </div>
 
+      </div>
+      </div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Repères */}
+        <div className="mb-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="rounded-3xl bg-warm-100 text-warm-700 p-5 flex flex-col justify-between min-h-32">
+            <p className="font-serif text-3xl font-semibold leading-tight">
+              {ehpad.accommodation_price_single != null
+                ? `${Math.round(ehpad.accommodation_price_single * 30).toLocaleString("fr-FR")} €`
+                : "Non publié"}
+            </p>
+            <p className="font-medium text-sm">
+              {ehpad.accommodation_price_single != null
+                ? "par mois, chambre seule"
+                : "tarif d'hébergement"}
+            </p>
+          </div>
+          <div className="rounded-3xl bg-teal-100 text-teal-700 p-5 flex flex-col justify-between min-h-32">
+            <p className="font-serif text-3xl font-semibold leading-tight">
+              {ehpad.capacity_total ?? "—"}
+            </p>
+            <p className="font-medium text-sm">places</p>
+          </div>
+          <div className="rounded-3xl bg-sky-100 text-sky-700 p-5 flex flex-col justify-between min-h-32">
+            <p className="font-serif text-2xl font-semibold leading-tight">
+              {aideSociale(ehpad.mft_code) === "oui"
+                ? "Oui"
+                : aideSociale(ehpad.mft_code) === "non"
+                  ? "Non"
+                  : "À vérifier"}
+            </p>
+            <p className="font-medium text-sm">habilité à l&apos;aide sociale</p>
+          </div>
+          <div className="rounded-3xl bg-sun-100 text-sun-700 p-5 flex flex-col justify-between min-h-32">
+            <p className="font-serif text-2xl font-semibold leading-tight">
+              {ehpad.has_eval_date
+                ? new Date(ehpad.has_eval_date).toLocaleDateString("fr-FR", {
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "Non publiée"}
+            </p>
+            <p className="font-medium text-sm">évaluation HAS</p>
+          </div>
+        </div>
+
         {/* Résumé en langage clair */}
-        <section className="mb-8 rounded-xl border border-sage-200 bg-white p-6">
+        <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
           <h2 className="text-xl mb-2">En clair</h2>
           <div className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
             {plainSummary(ehpad).map((line) => (
@@ -291,7 +338,7 @@ export default async function EtablissementPage({ params }: Props) {
 
             {/* HAS Evaluation details */}
             {ehpad.has_quality_grade && (
-              <section className="bg-white rounded-xl border border-sage-200 p-6">
+              <section className="bg-white rounded-3xl border border-sage-200 p-6">
                 <h2 className="text-lg font-semibold mb-4">Évaluation HAS</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                   {ehpad.has_eval_date && (
@@ -356,7 +403,7 @@ export default async function EtablissementPage({ params }: Props) {
 
             {/* Pricing */}
             {(ehpad.accommodation_price_single != null || ehpad.accommodation_price_double != null || ehpad.dependency_tariff_gir_12 != null || ehpad.dependency_tariff_gir_34 != null || ehpad.dependency_tariff_gir_56 != null) && (
-              <section className="bg-white rounded-xl border border-sage-200 p-6">
+              <section className="bg-white rounded-3xl border border-sage-200 p-6">
                 <h2 className="text-lg font-semibold mb-4">Tarifs</h2>
 
                 {/* Hébergement */}
@@ -365,14 +412,14 @@ export default async function EtablissementPage({ params }: Props) {
                     <p className="text-xs uppercase tracking-wide text-foreground/45 mb-2">Hébergement</p>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       {ehpad.accommodation_price_single != null && (
-                        <div className="bg-sage-50 rounded-lg p-3">
+                        <div className="bg-sage-50 rounded-2xl p-3">
                           <p className="text-foreground/50 text-xs">Chambre individuelle</p>
                           <p className="mt-1 font-semibold text-base">{ehpad.accommodation_price_single.toFixed(2)} €<span className="text-xs font-normal text-foreground/50">/jour</span></p>
                           <p className="text-foreground/40 text-xs mt-0.5">≈ {(ehpad.accommodation_price_single * 30).toFixed(0)} €/mois</p>
                         </div>
                       )}
                       {ehpad.accommodation_price_double != null && (
-                        <div className="bg-sage-50 rounded-lg p-3">
+                        <div className="bg-sage-50 rounded-2xl p-3">
                           <p className="text-foreground/50 text-xs">Chambre double</p>
                           <p className="mt-1 font-semibold text-base">{ehpad.accommodation_price_double.toFixed(2)} €<span className="text-xs font-normal text-foreground/50">/jour</span></p>
                           <p className="text-foreground/40 text-xs mt-0.5">≈ {(ehpad.accommodation_price_double * 30).toFixed(0)} €/mois</p>
@@ -391,25 +438,25 @@ export default async function EtablissementPage({ params }: Props) {
                     </div>
                     <div className="space-y-2 text-sm">
                       {ehpad.dependency_tariff_gir_12 != null && (
-                        <div className="flex items-center gap-3 rounded-lg border border-rose-100 bg-rose-50 px-4 py-3">
+                        <div className="flex items-center gap-3 rounded-2xl border border-coral-100 bg-coral-50 px-4 py-3">
                           <div className="flex-1">
-                            <p className="font-medium text-rose-800">GIR 1 &amp; 2</p>
-                            <p className="text-xs text-rose-600 mt-0.5">Dépendance totale — aide permanente</p>
+                            <p className="font-medium text-coral-700">GIR 1 &amp; 2</p>
+                            <p className="text-xs text-coral-600 mt-0.5">Dépendance totale — aide permanente</p>
                           </div>
-                          <p className="font-semibold text-rose-800 whitespace-nowrap">{ehpad.dependency_tariff_gir_12.toFixed(2)} €/jour</p>
+                          <p className="font-semibold text-coral-700 whitespace-nowrap">{ehpad.dependency_tariff_gir_12.toFixed(2)} €/jour</p>
                         </div>
                       )}
                       {ehpad.dependency_tariff_gir_34 != null && (
-                        <div className="flex items-center gap-3 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3">
+                        <div className="flex items-center gap-3 rounded-2xl border border-sun-200 bg-sun-100 px-4 py-3">
                           <div className="flex-1">
-                            <p className="font-medium text-amber-800">GIR 3 &amp; 4</p>
-                            <p className="text-xs text-amber-600 mt-0.5">Dépendance partielle — aide quotidienne</p>
+                            <p className="font-medium text-sun-700">GIR 3 &amp; 4</p>
+                            <p className="text-xs text-sun-700 mt-0.5">Dépendance partielle — aide quotidienne</p>
                           </div>
-                          <p className="font-semibold text-amber-800 whitespace-nowrap">{ehpad.dependency_tariff_gir_34.toFixed(2)} €/jour</p>
+                          <p className="font-semibold text-sun-700 whitespace-nowrap">{ehpad.dependency_tariff_gir_34.toFixed(2)} €/jour</p>
                         </div>
                       )}
                       {ehpad.dependency_tariff_gir_56 != null && (
-                        <div className="flex items-center gap-3 rounded-lg border border-teal-100 bg-teal-50 px-4 py-3">
+                        <div className="flex items-center gap-3 rounded-2xl border border-teal-200 bg-teal-100 px-4 py-3">
                           <div className="flex-1">
                             <p className="font-medium text-teal-800">GIR 5 &amp; 6</p>
                             <p className="text-xs text-teal-600 mt-0.5">Dépendance légère — aide ponctuelle</p>
@@ -438,7 +485,7 @@ export default async function EtablissementPage({ params }: Props) {
             )}
 
             {/* General info */}
-            <section className="bg-white rounded-xl border border-sage-200 p-6">
+            <section className="bg-white rounded-3xl border border-sage-200 p-6">
               <h2 className="text-lg font-semibold mb-4">
                 Informations générales
               </h2>
@@ -503,7 +550,7 @@ export default async function EtablissementPage({ params }: Props) {
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-20 space-y-6">
               {ehpad.latitude && ehpad.longitude ? (
-                <div className="h-[300px] lg:h-[350px] rounded-xl overflow-hidden border border-sage-200 shadow-sm">
+                <div className="h-[300px] lg:h-[350px] rounded-3xl overflow-hidden border border-sage-200 shadow-sm">
                   <EstablishmentMapWrapper
                     lat={ehpad.latitude}
                     lng={ehpad.longitude}
@@ -512,7 +559,7 @@ export default async function EtablissementPage({ params }: Props) {
                   />
                 </div>
               ) : (
-                <div className="h-[200px] rounded-xl bg-sage-50 border border-sage-200 flex items-center justify-center">
+                <div className="h-[200px] rounded-3xl bg-sage-50 border border-sage-200 flex items-center justify-center">
                   <p className="text-sm text-foreground/40">
                     Coordonnées non disponibles
                   </p>
@@ -520,17 +567,17 @@ export default async function EtablissementPage({ params }: Props) {
               )}
 
               {/* Quick actions */}
-              <div className="bg-white rounded-xl border border-sage-200 p-5 space-y-3">
+              <div className="bg-white rounded-3xl border border-sage-200 p-5 space-y-3">
                 <Link
                   href={`/comparer?ids=${ehpad.finess_geo}`}
-                  className="block w-full text-center text-sm font-medium rounded-lg px-4 py-2.5 bg-teal-600 text-white hover:bg-teal-700 transition-colors"
+                  className="block w-full text-center text-sm font-semibold rounded-full px-4 py-3 bg-coral-600 text-white hover:bg-coral-700 transition-colors"
                 >
                   Comparer avec d&apos;autres EHPAD
                 </Link>
                 {ehpad.city && (
                   <Link
                     href={`/search?q=${encodeURIComponent(ehpad.city)}&radius=20`}
-                    className="block w-full text-center text-sm font-medium rounded-lg px-4 py-2.5 bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors"
+                    className="block w-full text-center text-sm font-medium rounded-full px-4 py-3 bg-teal-100 text-teal-700 hover:bg-teal-200 transition-colors"
                   >
                     Voir les EHPAD à {ehpad.city}
                   </Link>
@@ -538,7 +585,7 @@ export default async function EtablissementPage({ params }: Props) {
                 {ehpad.department_name && (
                   <Link
                     href={`/search?q=${encodeURIComponent(ehpad.department_name)}&radius=0`}
-                    className="block w-full text-center text-sm font-medium rounded-lg px-4 py-2.5 bg-sage-50 text-foreground/70 hover:bg-sage-100 transition-colors"
+                    className="block w-full text-center text-sm font-medium rounded-full px-4 py-3 bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors"
                   >
                     EHPAD du {ehpad.department_name}
                   </Link>
