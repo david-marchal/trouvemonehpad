@@ -28,6 +28,9 @@ const SearchMapClustered = dynamic(() => import("./SearchMapClustered"), {
 type SearchResult = {
   finess_geo: string;
   mft_code?: string | null;
+  alzheimer_places?: number | null;
+  has_pasa?: boolean;
+  has_uhr?: boolean;
   accommodation_price_single?: number | null;
   name: string;
   city: string | null;
@@ -135,6 +138,10 @@ function toMapResults(results: SearchResult[]): MapResult[] {
     }));
 }
 
+function hasAlzheimerUnit(r: SearchResult): boolean {
+  return !!(r.alzheimer_places && r.alzheimer_places > 0) || !!r.has_pasa || !!r.has_uhr;
+}
+
 // Filtre un tableau de MapResult selon les filtres actifs
 function filterMapResults(
   results: MapResult[],
@@ -143,14 +150,16 @@ function filterMapResults(
   gradeFilter: string,
   girFilter: string,
   aideSocialeFilter: string,
-  priceFilter: string
+  priceFilter: string,
+  alzheimerFilter: boolean
 ): MapResult[] {
   if (
     !departmentFilter &&
     !gradeFilter &&
     !girFilter &&
     !aideSocialeFilter &&
-    !priceFilter
+    !priceFilter &&
+    !alzheimerFilter
   )
     return results;
 
@@ -166,6 +175,7 @@ function filterMapResults(
         }
         if (aideSocialeFilter && aideSociale(r.mft_code) !== "oui") return false;
         if (!priceInRange(r.accommodation_price_single, priceFilter)) return false;
+        if (alzheimerFilter && !hasAlzheimerUnit(r)) return false;
         return true;
       })
       .map((r) => r.finess_geo)
@@ -259,6 +269,11 @@ function ResultCard({
               {result.capacity_total ? (
                 <span className="inline-flex items-center rounded-full bg-sage-50 px-2 py-0.5 text-[11px] text-foreground/55">
                   {result.capacity_total} places
+                </span>
+              ) : null}
+              {hasAlzheimerUnit(result) ? (
+                <span className="inline-flex items-center rounded-full bg-coral-50 px-2 py-0.5 text-[11px] font-medium text-coral-700">
+                  Unité Alzheimer
                 </span>
               ) : null}
               {result.distance_km != null ? (
@@ -387,6 +402,7 @@ export default function SearchPageClient({
   const [girFilter, setGirFilter] = useState("");
   const [aideSocialeFilter, setAideSocialeFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
+  const [alzheimerFilter, setAlzheimerFilter] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
 
   const [results, setResults] = useState<SearchResult[]>(initialResults);
@@ -665,6 +681,7 @@ export default function SearchPageClient({
     }
     if (aideSocialeFilter && aideSociale(result.mft_code) !== "oui") return false;
     if (!priceInRange(result.accommodation_price_single, priceFilter)) return false;
+    if (alzheimerFilter && !hasAlzheimerUnit(result)) return false;
     return true;
   });
   const deferredFilteredResults = useDeferredValue(filteredResults);
@@ -706,7 +723,8 @@ export default function SearchPageClient({
     gradeFilter ||
     girFilter ||
     aideSocialeFilter ||
-    priceFilter
+    priceFilter ||
+    alzheimerFilter
   );
 
   useEffect(() => {
@@ -732,7 +750,8 @@ export default function SearchPageClient({
         gradeFilter,
         girFilter,
         aideSocialeFilter,
-        priceFilter
+        priceFilter,
+        alzheimerFilter
       )
     : null;
 
@@ -917,6 +936,16 @@ export default function SearchPageClient({
                 className="h-4 w-4 accent-coral-600"
               />
               Habilité aide sociale
+            </label>
+
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border border-sage-200 bg-white px-2.5 text-xs text-foreground/70">
+              <input
+                type="checkbox"
+                checked={alzheimerFilter}
+                onChange={(event) => setAlzheimerFilter(event.target.checked)}
+                className="h-4 w-4 accent-coral-600"
+              />
+              Unité Alzheimer
             </label>
 
             <div className="ml-auto flex items-center gap-2">

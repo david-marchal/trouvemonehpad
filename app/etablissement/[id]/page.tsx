@@ -228,6 +228,11 @@ export default async function EtablissementPage({ params }: Props) {
                   {ehpad.capacity_total} places
                 </span>
               )}
+              {(ehpad.alzheimer_places || ehpad.has_pasa || ehpad.has_uhr) && (
+                <span className="rounded-full px-3 py-1 border font-medium bg-coral-50 text-coral-700 border-coral-100">
+                  Unité Alzheimer
+                </span>
+              )}
               {aideSociale(ehpad.mft_code) !== "inconnu" && (
                 <span
                   className={`rounded-full px-3 py-1 border font-medium ${
@@ -328,6 +333,45 @@ export default async function EtablissementPage({ params }: Props) {
             <Link href="/guides/lire-une-evaluation-has" className="text-teal-600 underline underline-offset-2">
               Comment lire une évaluation HAS
             </Link>
+          </p>
+        </section>
+
+        {/* Alzheimer */}
+        <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
+          <h2 className="text-xl mb-2">Accompagnement Alzheimer</h2>
+          {ehpad.alzheimer_places || ehpad.has_pasa || ehpad.has_uhr ? (
+            <ul className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
+              {ehpad.alzheimer_places ? (
+                <li>
+                  <strong>{ehpad.alzheimer_places} places</strong> déclarées pour des
+                  personnes atteintes de la maladie d&apos;Alzheimer ou de maladies
+                  apparentées.
+                </li>
+              ) : null}
+              {ehpad.has_pasa ? (
+                <li>
+                  <strong>Un PASA</strong> (pôle d&apos;activités et de soins adaptés) :
+                  des activités en journée pour les résidents qui ont des troubles
+                  modérés.
+                </li>
+              ) : null}
+              {ehpad.has_uhr ? (
+                <li>
+                  <strong>Une UHR</strong> (unité d&apos;hébergement renforcée) : une
+                  unité sécurisée pour les troubles du comportement sévères.
+                </li>
+              ) : null}
+            </ul>
+          ) : (
+            <p className="text-foreground/85 leading-relaxed max-w-prose">
+              Aucune unité spécialisée n&apos;est déclarée pour cet établissement dans
+              le répertoire officiel (FINESS). Cela ne veut pas dire qu&apos;il
+              n&apos;accueille pas de personnes malades : posez la question lors de la
+              visite.
+            </p>
+          )}
+          <p className="mt-3 text-sm text-foreground/55">
+            Source : répertoire FINESS, à confirmer avec l&apos;établissement.
           </p>
         </section>
 

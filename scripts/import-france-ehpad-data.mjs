@@ -256,6 +256,9 @@ function parseFinessEstablishments(csvText) {
         authorizationDate: toDate(row[29]),
         sourceUpdatedAt: toDate(row[30]),
         capacityTotal: null,
+        alzheimerPlaces: null,
+        hasPasa: false,
+        hasUhr: false,
         latitude: null,
         longitude: null,
         legalStatus: null,
@@ -299,11 +302,24 @@ function parseFinessCapacities(csvText, establishments) {
     const installationDeleted = cleanText(row[15]) === "O";
     const authorizationDeleted = cleanText(row[24]) === "O";
 
+    if (installationDeleted || authorizationDeleted) {
+      continue;
+    }
+
+    // PASA (961) et UHR (962) : unités spécialisées pour les personnes
+    // atteintes d'Alzheimer ou de maladies apparentées.
+    if (disciplineCode === "961") {
+      establishment.hasPasa = true;
+      continue;
+    }
+    if (disciplineCode === "962") {
+      establishment.hasUhr = true;
+      continue;
+    }
+
     if (
       disciplineCode !== EHPAD_DISCIPLINE_CODE ||
-      activityCode !== FULL_TIME_ACTIVITY_CODE ||
-      installationDeleted ||
-      authorizationDeleted
+      activityCode !== FULL_TIME_ACTIVITY_CODE
     ) {
       continue;
     }
@@ -314,6 +330,12 @@ function parseFinessCapacities(csvText, establishments) {
     }
 
     establishment.capacityTotal = (establishment.capacityTotal ?? 0) + capacity;
+
+    // Clientèle 436 = Alzheimer et maladies apparentées
+    if (cleanText(row[6]) === "436") {
+      establishment.alzheimerPlaces =
+        (establishment.alzheimerPlaces ?? 0) + capacity;
+    }
   }
 }
 
@@ -445,6 +467,9 @@ function toEstablishmentRow(establishment, latestEvaluation) {
     authorization_date: establishment.authorizationDate,
     source_updated_at: establishment.sourceUpdatedAt,
     capacity_total: establishment.capacityTotal,
+    alzheimer_places: establishment.alzheimerPlaces,
+    has_pasa: establishment.hasPasa,
+    has_uhr: establishment.hasUhr,
     latitude: latestEvaluation?.latitude ?? establishment.latitude,
     longitude: latestEvaluation?.longitude ?? establishment.longitude,
     legal_status: latestEvaluation?.legalStatus ?? establishment.legalStatus,

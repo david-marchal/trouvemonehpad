@@ -28,6 +28,9 @@ CREATE TABLE IF NOT EXISTS ehpad_establishments (
   authorization_date DATE,
   source_updated_at DATE,
   capacity_total INTEGER,
+  alzheimer_places INTEGER,
+  has_pasa BOOLEAN NOT NULL DEFAULT FALSE,
+  has_uhr BOOLEAN NOT NULL DEFAULT FALSE,
   latitude DOUBLE PRECISION,
   longitude DOUBLE PRECISION,
   legal_status TEXT,
@@ -43,6 +46,11 @@ CREATE TABLE IF NOT EXISTS ehpad_establishments (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Bases déjà créées avant l'ajout des unités Alzheimer
+ALTER TABLE ehpad_establishments ADD COLUMN IF NOT EXISTS alzheimer_places INTEGER;
+ALTER TABLE ehpad_establishments ADD COLUMN IF NOT EXISTS has_pasa BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE ehpad_establishments ADD COLUMN IF NOT EXISTS has_uhr BOOLEAN NOT NULL DEFAULT FALSE;
 
 CREATE TABLE IF NOT EXISTS ehpad_has_evaluations (
   finess_geo TEXT NOT NULL REFERENCES ehpad_establishments (finess_geo) ON DELETE CASCADE,

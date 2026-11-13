@@ -16,6 +16,9 @@ export type EhpadDetail = {
   phone: string | null;
   capacity_total: number | null;
   mft_code: string | null;
+  alzheimer_places: number | null;
+  has_pasa: boolean;
+  has_uhr: boolean;
   latitude: number | null;
   longitude: number | null;
   has_quality_grade: string | null;
@@ -48,6 +51,9 @@ export const getEhpadByFiness = cache(
         e.phone,
         e.capacity_total,
         e.mft_code,
+        e.alzheimer_places,
+        e.has_pasa,
+        e.has_uhr,
         e.latitude::float8 AS latitude,
         e.longitude::float8 AS longitude,
         e.has_quality_grade,
@@ -96,6 +102,9 @@ export type EhpadSearchResult = {
   address_line: string | null;
   capacity_total: number | null;
   mft_code?: string | null;
+  alzheimer_places?: number | null;
+  has_pasa?: boolean;
+  has_uhr?: boolean;
   has_quality_grade: string | null;
   has_score_100: number | null;
   has_eval_date: string | null;
@@ -206,6 +215,9 @@ export async function searchEhpads(
         e.address_line,
         e.capacity_total,
         e.mft_code,
+        e.alzheimer_places,
+        e.has_pasa,
+        e.has_uhr,
         e.has_quality_grade,
         e.has_score_100::float8 AS has_score_100,
         e.has_eval_date::text AS has_eval_date,
@@ -255,6 +267,9 @@ export async function searchEhpads(
       e.address_line,
       e.capacity_total,
         e.mft_code,
+        e.alzheimer_places,
+        e.has_pasa,
+        e.has_uhr,
       e.has_quality_grade,
       e.has_score_100::float8 AS has_score_100,
       e.has_eval_date::text AS has_eval_date,
@@ -310,6 +325,9 @@ export async function searchByRadius(
         e.address_line,
         e.capacity_total,
         e.mft_code,
+        e.alzheimer_places,
+        e.has_pasa,
+        e.has_uhr,
         e.has_quality_grade,
         e.has_score_100::float8 AS has_score_100,
         e.has_eval_date::text AS has_eval_date,
