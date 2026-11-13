@@ -99,10 +99,10 @@ export default function SearchMapClustered({
       zoomControl: false,
     });
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: "abcd",
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      className: "basemap-sober",
       maxZoom: 19,
     }).addTo(map);
 

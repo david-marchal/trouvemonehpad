@@ -130,3 +130,8 @@ h2 {
   font-family: var(--font-sans);
   font-weight: 700;
 }
+
+/* Fond de carte sobre : OpenStreetMap désaturé et éclairci pour faire ressortir les pastilles */
+.basemap-sober {
+  filter: grayscale(1) contrast(0.85) brightness(1.12);
+}
