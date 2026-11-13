@@ -138,7 +138,7 @@ export default async function Home() {
           {CITIES.map((city, i) => (
             <li key={city}>
               <Link
-                href={`/search?q=${encodeURIComponent(city)}&radius=20`}
+                href={`/search?q=${encodeURIComponent(city)}&radius=10`}
                 className={`inline-flex items-center min-h-[48px] rounded-full px-6 font-semibold transition-transform hover:-translate-y-0.5 ${CITY_TINTS[i % CITY_TINTS.length]}`}
               >
                 {city}

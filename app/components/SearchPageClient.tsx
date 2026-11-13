@@ -86,11 +86,6 @@ type BanSuggestion = {
   };
 };
 
-type Department = {
-  department_code: string;
-  department_name: string;
-};
-
 const GRADE_OPTIONS = [
   { value: "", label: "Toutes" },
   { value: "A", label: "A — Excellent" },
@@ -146,7 +141,6 @@ function hasAlzheimerUnit(r: SearchResult): boolean {
 function filterMapResults(
   results: MapResult[],
   searchResults: SearchResult[],
-  departmentFilter: string,
   gradeFilter: string,
   girFilter: string,
   aideSocialeFilter: string,
@@ -154,7 +148,6 @@ function filterMapResults(
   alzheimerFilter: boolean
 ): MapResult[] {
   if (
-    !departmentFilter &&
     !gradeFilter &&
     !girFilter &&
     !aideSocialeFilter &&
@@ -167,7 +160,6 @@ function filterMapResults(
   const allowedFiness = new Set(
     searchResults
       .filter((r) => {
-        if (departmentFilter && r.department_code !== departmentFilter) return false;
         if (gradeFilter && r.has_quality_grade !== gradeFilter) return false;
         if (girFilter) {
           const key = `dependency_tariff_gir_${girFilter}` as keyof SearchResult;
@@ -397,13 +389,11 @@ export default function SearchPageClient({
     useState<SelectedLocation | null>(null);
 
   const [radiusKm, setRadiusKm] = useState(normalizedInitialRadius);
-  const [departmentFilter, setDepartmentFilter] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
   const [girFilter, setGirFilter] = useState("");
   const [aideSocialeFilter, setAideSocialeFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
   const [alzheimerFilter, setAlzheimerFilter] = useState(false);
-  const [departments, setDepartments] = useState<Department[]>([]);
 
   const [results, setResults] = useState<SearchResult[]>(initialResults);
   // mapResults = résultats bruts de la carte (exploration sans recherche)
@@ -426,13 +416,6 @@ export default function SearchPageClient({
   // et éviter de recréer les markers Leaflet à chaque render
   const prevDisplayIdsRef = useRef<string>("");
   const stableDisplayMapResultsRef = useRef<MapResult[]>([]);
-
-  useEffect(() => {
-    fetch("/api/ehpads/departments")
-      .then((response) => response.json())
-      .then(setDepartments)
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -673,7 +656,6 @@ export default function SearchPageClient({
 
   // --- Calcul des résultats filtrés ---
   const filteredResults = results.filter((result) => {
-    if (departmentFilter && result.department_code !== departmentFilter) return false;
     if (gradeFilter && result.has_quality_grade !== gradeFilter) return false;
     if (girFilter) {
       const key = `dependency_tariff_gir_${girFilter}` as keyof SearchResult;
@@ -698,9 +680,8 @@ export default function SearchPageClient({
     // Mode exploration : filtrer les markers de la carte
     // On n'a pas les champs GIR dans mapResults (légers), donc on filtre
     // uniquement sur département et note
-    if (departmentFilter || gradeFilter) {
+    if (gradeFilter) {
       return mapResults.filter((r) => {
-        if (departmentFilter) return false; // mapResults n'a pas department_code → skip
         if (gradeFilter && r.has_quality_grade !== gradeFilter) return false;
         return true;
       });
@@ -719,7 +700,6 @@ export default function SearchPageClient({
   // Pour le mode exploration avec filtres, on charge les résultats complets si nécessaire
   const [explorationResults, setExplorationResults] = useState<SearchResult[]>([]);
   const hasActiveFilters = !!(
-    departmentFilter ||
     gradeFilter ||
     girFilter ||
     aideSocialeFilter ||
@@ -746,7 +726,6 @@ export default function SearchPageClient({
     ? filterMapResults(
         toMapResults(explorationResults),
         explorationResults,
-        departmentFilter,
         gradeFilter,
         girFilter,
         aideSocialeFilter,
@@ -848,28 +827,6 @@ export default function SearchPageClient({
           </form>
 
           <div className="mt-3 flex flex-wrap items-center gap-2 pb-4">
-            <select
-              value={departmentFilter}
-              onChange={(event) => setDepartmentFilter(event.target.value)}
-              className="min-h-[44px] min-w-[140px] cursor-pointer appearance-none rounded-full border border-sage-200 bg-white px-2.5 py-2.5 text-xs text-foreground/70 focus:border-coral-500 focus:outline-none"
-              style={{
-                backgroundImage:
-                  'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%239ca3af\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "right 8px center",
-              }}
-            >
-              <option value="">Département</option>
-              {departments.map((department) => (
-                <option
-                  key={department.department_code}
-                  value={department.department_code}
-                >
-                  {department.department_code} — {department.department_name}
-                </option>
-              ))}
-            </select>
-
             <select
               value={gradeFilter}
               onChange={(event) => setGradeFilter(event.target.value)}

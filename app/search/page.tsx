@@ -18,12 +18,12 @@ function getSingleParam(
 
 function parseRadius(value: string | undefined) {
   if (!value) {
-    return 20;
+    return 10;
   }
 
   const parsed = Number.parseFloat(value);
   if (Number.isNaN(parsed)) {
-    return 20;
+    return 10;
   }
 
   return Math.min(Math.max(parsed, 0), 100);

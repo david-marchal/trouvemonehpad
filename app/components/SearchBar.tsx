@@ -3,15 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const RADIUS_OPTIONS = [
-  { value: 0, label: "Exact" },
-  { value: 10, label: "10 km" },
-  { value: 20, label: "20 km" },
-  { value: 30, label: "30 km" },
-  { value: 50, label: "50 km" },
-  { value: 100, label: "100 km" },
-];
-
 function SearchIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -31,20 +22,17 @@ function SearchIcon({ className }: { className?: string }) {
   );
 }
 
-export default function SearchBar({
-  defaultRadius = 20,
-}: {
-  defaultRadius?: number;
-}) {
+const DEFAULT_RADIUS_KM = 10;
+
+export default function SearchBar() {
   const [query, setQuery] = useState("");
-  const [radius, setRadius] = useState(defaultRadius);
   const router = useRouter();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (query.trim()) {
       const params = new URLSearchParams({ q: query.trim() });
-      params.set("radius", String(radius));
+      params.set("radius", String(DEFAULT_RADIUS_KM));
       router.push(`/search?${params.toString()}`);
     }
   }
@@ -70,32 +58,6 @@ export default function SearchBar({
             autoComplete="off"
             className="block w-full min-w-0 bg-transparent outline-none text-base text-foreground placeholder:text-foreground/50"
           />
-        </label>
-
-        <span
-          className="hidden sm:block self-center h-8 w-px bg-sage-200"
-          aria-hidden="true"
-        />
-
-        <label
-          htmlFor="home-search-radius"
-          className="sm:w-40 rounded-2xl sm:rounded-full px-5 py-3 cursor-pointer hover:bg-sage-50 focus-within:bg-sage-50 transition-colors"
-        >
-          <span className="block text-xs font-bold text-foreground">
-            Autour de
-          </span>
-          <select
-            id="home-search-radius"
-            value={radius}
-            onChange={(e) => setRadius(Number(e.target.value))}
-            className="block w-full bg-transparent outline-none text-base text-foreground cursor-pointer -ml-1"
-          >
-            {RADIUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
         </label>
 
         <button

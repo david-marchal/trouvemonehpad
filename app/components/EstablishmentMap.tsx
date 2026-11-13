@@ -38,7 +38,6 @@ export default function EstablishmentMap({
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      className: "basemap-sober",
       maxZoom: 19,
     }).addTo(map);
 

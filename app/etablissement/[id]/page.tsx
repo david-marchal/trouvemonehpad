@@ -620,7 +620,7 @@ export default async function EtablissementPage({ params }: Props) {
                 </Link>
                 {ehpad.city && (
                   <Link
-                    href={`/search?q=${encodeURIComponent(ehpad.city)}&radius=20`}
+                    href={`/search?q=${encodeURIComponent(ehpad.city)}&radius=10`}
                     className="block w-full text-center text-sm font-medium rounded-full px-4 py-3 bg-teal-100 text-teal-700 hover:bg-teal-200 transition-colors"
                   >
                     Voir les EHPAD à {ehpad.city}
