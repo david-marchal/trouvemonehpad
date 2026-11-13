@@ -171,6 +171,7 @@ export const GUIDES: Guide[] = [
           "Le contrat de séjour et le règlement de fonctionnement, à lire chez vous avant de signer.",
           "Le rapport d'évaluation HAS complet, pas seulement la lettre.",
           "La liste des prestations comprises dans le tarif et celles facturées en plus.",
+          "Le dernier rapport d'inspection de l'agence régionale de santé (ARS), s'il y en a eu un, et les suites données à ses recommandations.",
         ],
       },
       {
@@ -188,6 +189,37 @@ export const GUIDES: Guide[] = [
           "Un médecin coordonnateur est-il présent ? Combien de jours par semaine ?",
           "Comment sont gérées les urgences, les hospitalisations et les chutes ?",
           "Que se passe-t-il si l'état de santé de votre proche s'aggrave ? Jusqu'où l'établissement l'accompagne-t-il, y compris en fin de vie ?",
+        ],
+      },
+      {
+        heading: "Les chambres et les espaces",
+        items: [
+          "Quelle est la surface de la chambre ? A-t-elle une salle de bain avec douche accessible ?",
+          "La chambre est-elle lumineuse ? Peut-on la personnaliser : meubles, photos, décoration ?",
+          "Existe-t-il un jardin ou une terrasse accessibles en sécurité, y compris pour une personne qui se déplace en fauteuil ou qui déambule ?",
+          "Comment accéder à l'établissement : transports en commun, parking, accès pour les personnes à mobilité réduite ?",
+        ],
+      },
+      {
+        heading: "Si la maladie évolue",
+        items: [
+          "Existe-t-il une unité adaptée aux troubles cognitifs (unité protégée, pôle d'activités et de soins adaptés) ? Combien de places, et comment y accède-t-on ?",
+          "Si l'état de votre proche s'aggrave, peut-il rester dans l'établissement, ou faudra-t-il déménager ?",
+        ],
+      },
+      {
+        heading: "La chaleur",
+        items: [
+          "Comment l'établissement protège-t-il les résidents pendant une canicule ? Existe-t-il un plan prévu pour cela, et le personnel est-il formé ?",
+          "Y a-t-il au moins une pièce commune rafraîchie où les résidents peuvent se retrouver ?",
+        ],
+      },
+      {
+        heading: "Les visites et la vie sociale",
+        items: [
+          "Quels sont les horaires de visite ? Peut-on partager un repas avec son proche ?",
+          "Un proche peut-il rester la nuit en fin de vie ? Les animaux de compagnie sont-ils acceptés en visite ?",
+          "Quelles animations sont proposées, par qui, et à quelle fréquence ? Demandez le programme de la semaine.",
         ],
       },
       {
@@ -214,6 +246,11 @@ export const GUIDES: Guide[] = [
         label:
           "HAS, évaluation des établissements et services sociaux et médico-sociaux (rapport transmis au conseil de la vie sociale)",
         url: "https://www.has-sante.fr/jcms/p_3323113/fr/evaluation-des-etablissements-et-services-sociaux-et-medico-sociaux",
+      },
+      {
+        label:
+          "CapRetraite, grille de notation d'un EHPAD en 15 points (liste des points à observer, reprise sous forme de questions)",
+        url: "https://www.capretraite.fr/blog/maisons-de-retraite/comment-choisir-un-ehpad-quand-on-ny-connait-rien-la-grille-de-notation-en-15-points/",
       },
     ],
   },
