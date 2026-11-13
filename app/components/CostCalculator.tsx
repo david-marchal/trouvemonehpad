@@ -45,7 +45,7 @@ export default function CostCalculator({
   const high = rawHigh != null ? Math.max(0, rawHigh - housingAid) : null;
 
   return (
-    <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
+    <section className="rounded-3xl border border-sage-200 bg-white p-6">
       <h2 className="text-xl">Tarif et reste à payer</h2>
       <p className="mt-1 text-sm text-foreground/70">
         Chambre seule, par mois. Quel est le niveau de dépendance de votre proche ?

@@ -260,7 +260,7 @@ export default async function EtablissementPage({ params }: Props) {
     <>
       <JsonLd ehpad={ehpad} />
       <div className="border-b border-sage-200 bg-gradient-to-b from-warm-100 to-coral-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-8">
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm text-foreground/50">
           <Link href="/" className="hover:text-teal-600 transition-colors">
@@ -362,101 +362,101 @@ export default async function EtablissementPage({ params }: Props) {
 
       </div>
       </div>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {/* Tarif et reste à payer */}
-        {ehpad.accommodation_price_single != null ? (
-          <CostCalculator
-            aideSociale={aideSociale(ehpad.mft_code)}
-            pricing={{
-              accommodation_price_single: ehpad.accommodation_price_single,
-              dependency_tariff_gir_12: ehpad.dependency_tariff_gir_12,
-              dependency_tariff_gir_34: ehpad.dependency_tariff_gir_34,
-              dependency_tariff_gir_56: ehpad.dependency_tariff_gir_56,
-            }}
-          >
-            <TariffDetail ehpad={ehpad} />
-          </CostCalculator>
-        ) : ehpad.accommodation_price_double != null ||
-          ehpad.dependency_tariff_gir_12 != null ||
-          ehpad.dependency_tariff_gir_34 != null ||
-          ehpad.dependency_tariff_gir_56 != null ? (
-          <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
-            <h2 className="text-xl mb-4">Tarifs</h2>
-            <TariffDetail ehpad={ehpad} />
-          </section>
-        ) : null}
-
-        {/* Et maintenant ? */}
-        <section className="mb-8 rounded-3xl bg-teal-100 p-6">
-          <h2 className="text-xl mb-4 text-teal-700">Et maintenant ?</h2>
-          <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <li className="rounded-2xl bg-white p-4">
-              <p className="font-semibold">1. Appelez l&apos;établissement</p>
-              <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
-                Demandez s&apos;il a une place, le délai d&apos;attente et le dossier
-                d&apos;admission à remplir.
-              </p>
-              {ehpad.phone ? (
-                <a
-                  href={`tel:${ehpad.phone.replace(/\s/g, "")}`}
-                  className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-coral-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-700"
-                >
-                  Appeler le {ehpad.phone}
-                </a>
-              ) : (
-                <p className="mt-3 text-sm text-foreground/60">
-                  Numéro non renseigné dans les bases publiques.
-                </p>
-              )}
-            </li>
-            <li className="rounded-2xl bg-white p-4">
-              <p className="font-semibold">2. Visitez, deux fois si possible</p>
-              <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
-                Une fois en semaine, une fois le week-end ou à l&apos;heure du repas.
-                Apportez la liste de questions.
-              </p>
-              <Link
-                href={`/etablissement/${ehpad.finess_geo}/visite`}
-                className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-teal-700 ring-1 ring-teal-600 transition-colors hover:bg-teal-100"
-              >
-                Imprimer les questions
-              </Link>
-            </li>
-            <li className="rounded-2xl bg-white p-4">
-              <p className="font-semibold">3. Lisez avant de signer</p>
-              <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
-                Demandez le contrat de séjour, le règlement de fonctionnement et le
-                rapport d&apos;évaluation HAS complet.
-              </p>
-              <Link
-                href={`/comparer?ids=${ehpad.finess_geo}`}
-                className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-teal-700 ring-1 ring-teal-600 transition-colors hover:bg-teal-100"
-              >
-                Comparer avec un autre
-              </Link>
-            </li>
-          </ol>
-        </section>
-
-        {/* Résumé en langage clair */}
-        <section className="mb-8 rounded-3xl border border-sage-200 bg-white p-6">
-          <h2 className="text-xl mb-2">En clair</h2>
-          <div className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
-            {plainSummary(ehpad).map((line) => (
-              <p key={line}>{line}</p>
-            ))}
-          </div>
-          <p className="mt-3 text-sm text-foreground/65">
-            <Link href="/guides/lire-une-evaluation-has" className="text-teal-600 underline underline-offset-2">
-              Comment lire une évaluation HAS
-            </Link>
-          </p>
-        </section>
-
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Main content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column - Details */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Résumé en langage clair */}
+            <section className="rounded-3xl border border-sage-200 bg-white p-6">
+              <h2 className="text-xl mb-2">En clair</h2>
+              <div className="space-y-2 text-foreground/85 leading-relaxed max-w-prose">
+                {plainSummary(ehpad).map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+              <p className="mt-3 text-sm text-foreground/65">
+                <Link href="/guides/lire-une-evaluation-has" className="text-teal-600 underline underline-offset-2">
+                  Comment lire une évaluation HAS
+                </Link>
+              </p>
+            </section>
+
+            {/* Tarif et reste à payer */}
+            {ehpad.accommodation_price_single != null ? (
+              <CostCalculator
+                aideSociale={aideSociale(ehpad.mft_code)}
+                pricing={{
+                  accommodation_price_single: ehpad.accommodation_price_single,
+                  dependency_tariff_gir_12: ehpad.dependency_tariff_gir_12,
+                  dependency_tariff_gir_34: ehpad.dependency_tariff_gir_34,
+                  dependency_tariff_gir_56: ehpad.dependency_tariff_gir_56,
+                }}
+              >
+                <TariffDetail ehpad={ehpad} />
+              </CostCalculator>
+            ) : ehpad.accommodation_price_double != null ||
+              ehpad.dependency_tariff_gir_12 != null ||
+              ehpad.dependency_tariff_gir_34 != null ||
+              ehpad.dependency_tariff_gir_56 != null ? (
+              <section className="rounded-3xl border border-sage-200 bg-white p-6">
+                <h2 className="text-xl mb-4">Tarifs</h2>
+                <TariffDetail ehpad={ehpad} />
+              </section>
+            ) : null}
+
+            {/* Et maintenant ? */}
+            <section className="rounded-3xl bg-teal-100 p-6">
+              <h2 className="text-xl mb-4 text-teal-700">Et maintenant ?</h2>
+              <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <li className="rounded-2xl bg-white p-4">
+                  <p className="font-semibold">1. Appelez l&apos;établissement</p>
+                  <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
+                    Demandez s&apos;il a une place, le délai d&apos;attente et le dossier
+                    d&apos;admission à remplir.
+                  </p>
+                  {ehpad.phone ? (
+                    <a
+                      href={`tel:${ehpad.phone.replace(/\s/g, "")}`}
+                      className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-coral-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-700"
+                    >
+                      Appeler le {ehpad.phone}
+                    </a>
+                  ) : (
+                    <p className="mt-3 text-sm text-foreground/60">
+                      Numéro non renseigné dans les bases publiques.
+                    </p>
+                  )}
+                </li>
+                <li className="rounded-2xl bg-white p-4">
+                  <p className="font-semibold">2. Visitez, deux fois si possible</p>
+                  <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
+                    Une fois en semaine, une fois le week-end ou à l&apos;heure du repas.
+                    Apportez la liste de questions.
+                  </p>
+                  <Link
+                    href={`/etablissement/${ehpad.finess_geo}/visite`}
+                    className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-teal-700 ring-1 ring-teal-600 transition-colors hover:bg-teal-100"
+                  >
+                    Imprimer les questions
+                  </Link>
+                </li>
+                <li className="rounded-2xl bg-white p-4">
+                  <p className="font-semibold">3. Lisez avant de signer</p>
+                  <p className="mt-1 text-sm text-foreground/75 leading-relaxed">
+                    Demandez le contrat de séjour, le règlement de fonctionnement et le
+                    rapport d&apos;évaluation HAS complet.
+                  </p>
+                  <Link
+                    href={`/comparer?ids=${ehpad.finess_geo}`}
+                    className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-teal-700 ring-1 ring-teal-600 transition-colors hover:bg-teal-100"
+                  >
+                    Comparer avec un autre
+                  </Link>
+                </li>
+              </ol>
+            </section>
+
 
             {/* HAS Evaluation details */}
             {ehpad.has_quality_grade && (
@@ -573,71 +573,11 @@ export default async function EtablissementPage({ params }: Props) {
               </p>
             </section>
 
-            {/* General info */}
-            <section className="bg-white rounded-3xl border border-sage-200 p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Informations générales
-              </h2>
-              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                {ehpad.phone && (
-                  <div>
-                    <dt className="text-foreground/45 text-xs uppercase tracking-wide">
-                      Téléphone
-                    </dt>
-                    <dd className="mt-1">
-                      <a
-                        href={`tel:${ehpad.phone}`}
-                        className="text-teal-600 hover:underline"
-                      >
-                        {ehpad.phone}
-                      </a>
-                    </dd>
-                  </div>
-                )}
-                <div>
-                  <dt className="text-foreground/45 text-xs uppercase tracking-wide">
-                    Statut
-                  </dt>
-                  <dd className="mt-1">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border ${lsc.bg} ${lsc.text} ${lsc.border}`}>
-                      {lsc.label}
-                    </span>
-                  </dd>
-                </div>
-                {ehpad.capacity_total && (
-                  <div>
-                    <dt className="text-foreground/45 text-xs uppercase tracking-wide">
-                      Capacité
-                    </dt>
-                    <dd className="mt-1">{ehpad.capacity_total} places</dd>
-                  </div>
-                )}
-                {ehpad.category_label && (
-                  <div>
-                    <dt className="text-foreground/45 text-xs uppercase tracking-wide">
-                      Type
-                    </dt>
-                    <dd className="mt-1">{ehpad.category_label}</dd>
-                  </div>
-                )}
-                <div>
-                  <dt className="text-foreground/45 text-xs uppercase tracking-wide">
-                    Numéro FINESS
-                  </dt>
-                  <dd className="mt-1 font-mono text-foreground/60">{ehpad.finess_geo}</dd>
-                </div>
-              </dl>
-            </section>
-
-            {/* Nearby amenities */}
-            <Suspense fallback={<NearbyAmenitiesLoading />}>
-              <NearbyAmenities lat={ehpad.latitude} lng={ehpad.longitude} />
-            </Suspense>
           </div>
 
           {/* Right column - Map */}
           <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-20 space-y-6">
+            <div className="space-y-6">
               {ehpad.latitude && ehpad.longitude ? (
                 <div className="h-[300px] lg:h-[350px] rounded-3xl overflow-hidden border border-sage-200 shadow-sm">
                   <EstablishmentMapWrapper
@@ -654,6 +594,11 @@ export default async function EtablissementPage({ params }: Props) {
                   </p>
                 </div>
               )}
+
+              {/* Nearby amenities */}
+              <Suspense fallback={<NearbyAmenitiesLoading />}>
+                <NearbyAmenities lat={ehpad.latitude} lng={ehpad.longitude} />
+              </Suspense>
 
               {/* Quick actions */}
               <div className="bg-white rounded-3xl border border-sage-200 p-5 space-y-3">
@@ -691,6 +636,10 @@ export default async function EtablissementPage({ params }: Props) {
             </div>
           </div>
         </div>
+        <p className="mt-8 text-xs text-foreground/50">
+          Numéro FINESS : <span className="font-mono">{ehpad.finess_geo}</span>. Données
+          publiques : annuaire FINESS, évaluations de la HAS, tarifs de la CNSA.
+        </p>
       </div>
     </>
   );
