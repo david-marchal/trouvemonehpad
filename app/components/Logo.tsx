@@ -35,7 +35,7 @@ export default function Logo() {
   return (
     <span
       className="inline-flex items-center gap-2.5"
-      style={{ fontFamily: "var(--font-logo), var(--font-sans)" }}
+      style={{ fontFamily: "var(--font-sans)" }}
     >
       <LogoMark />
       <span className="flex flex-col leading-[0.92]">
