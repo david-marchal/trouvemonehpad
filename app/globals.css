@@ -29,6 +29,17 @@
   --color-rose-100: #FFE0E0;
   --color-rose-400: #E8747A;
   --color-rose-500: #D45A60;
+  --color-coral-50: #FFF1F1;
+  --color-coral-100: #FFE0E1;
+  --color-coral-500: #D8505A;
+  --color-coral-600: #C2414B;
+  --color-coral-700: #A5333D;
+  --color-sky-100: #DCEBFA;
+  --color-sky-200: #BBD7F5;
+  --color-sky-700: #1F4E80;
+  --color-sun-100: #FFF0B8;
+  --color-sun-200: #FFE385;
+  --color-sun-700: #6E5200;
   --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-literata), Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;

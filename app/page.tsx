@@ -17,6 +17,34 @@ import {
 // Les chiffres sont recalculés au plus une fois par heure.
 export const revalidate = 3600;
 
+const CITIES = [
+  "Paris",
+  "Lyon",
+  "Marseille",
+  "Toulouse",
+  "Nice",
+  "Nantes",
+  "Bordeaux",
+  "Lille",
+  "Rouen",
+  "Strasbourg",
+];
+
+const CITY_TINTS = [
+  "bg-teal-100 text-teal-700",
+  "bg-warm-100 text-warm-700",
+  "bg-sky-100 text-sky-700",
+  "bg-coral-100 text-coral-700",
+  "bg-sun-100 text-sun-700",
+];
+
+const GUIDE_TINTS = [
+  "bg-teal-100 text-teal-700",
+  "bg-warm-100 text-warm-700",
+  "bg-sky-100 text-sky-700",
+  "bg-coral-100 text-coral-700",
+];
+
 export const metadata: Metadata = buildPageMetadata({
   title: HOME_TITLE,
   description: SITE_DESCRIPTION,
@@ -45,103 +73,114 @@ export default async function Home() {
         }}
       />
 
-      <section className="border-b border-sage-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-10 lg:gap-14 items-center">
-          <div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.08] max-w-3xl">
-            {stats
-              ? `Les évaluations officielles de ${formatNumber(stats.total)} EHPAD, enfin lisibles.`
-              : "Les évaluations officielles des EHPAD, enfin lisibles."}
+      <section className="bg-gradient-to-b from-warm-100 via-coral-50 to-background">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 text-center">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl leading-[1.1] max-w-3xl mx-auto">
+            Trouvez un EHPAD près de chez vous
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-foreground/75 max-w-2xl leading-relaxed">
-            Note de la HAS, tarifs d&apos;hébergement et de dépendance, carte,
-            et un calcul du coût mensuel selon le niveau d&apos;autonomie de
-            votre proche. Aucun établissement ne paie pour apparaître ici.
+          <p className="mt-4 text-lg text-foreground/70">
+            Notes officielles, tarifs et coût mensuel estimé.
           </p>
-          <div className="mt-9 max-w-2xl">
-            <SearchBar large />
-            <p className="mt-3 text-sm text-foreground/60 px-1">
-              Une ville, un code postal, un département ou le nom d&apos;un
-              établissement.
-            </p>
+          <div className="mt-9">
+            <SearchBar />
           </div>
-          <p className="mt-8 text-sm text-foreground/65 max-w-xl">
-            {stats?.updatedAt
-              ? `Données mises à jour le ${formatDateFr(stats.updatedAt)}, `
-              : "Données mises à jour chaque jour, "}
-            à partir de trois bases publiques : l&apos;annuaire FINESS, les
-            évaluations de la HAS
-            {stats ? ` (${formatNumber(stats.evaluated)} établissements évalués)` : ""}{" "}
-            et les tarifs de la CNSA.
-          </p>
-          </div>
+        </div>
+      </section>
 
-          <div className="relative order-first lg:order-none h-56 sm:h-72 lg:h-[30rem] overflow-hidden rounded-2xl bg-sage-100">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="relative col-span-2 lg:row-span-2 min-h-56 sm:min-h-72 overflow-hidden rounded-3xl bg-sage-100">
             <Image
               src="/hero.jpg"
               alt="Les mains de deux personnes âgées, l'une posée sur l'autre"
               fill
               priority
-              sizes="(min-width: 1024px) 40vw, 100vw"
+              sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover object-[50%_55%]"
             />
           </div>
-        </div>
-      </section>
 
-      <section className="py-14 sm:py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-5 gap-10">
-          <div className="lg:col-span-2">
-            <h2 className="text-3xl leading-tight">
-              Avant de regarder les notes
-            </h2>
-            <p className="mt-3 text-foreground/75 max-w-md">
-              Une lettre A ne dit pas tout, et un prix au jour ne dit pas
-              combien vous paierez. Ces guides expliquent comment lire ce que
-              vous allez trouver.
+          <div className="rounded-3xl bg-teal-100 text-teal-700 p-5 sm:p-6 flex flex-col justify-between min-h-36">
+            <p className="font-serif text-4xl sm:text-5xl font-semibold">
+              {stats ? formatNumber(stats.total) : "Tous"}
             </p>
+            <p className="font-medium">EHPAD en France</p>
           </div>
-          <ul className="lg:col-span-3 divide-y divide-sage-200 border-y border-sage-200">
-            {GUIDES.map((g) => (
-              <li key={g.slug}>
-                <Link
-                  href={`/guides/${g.slug}`}
-                  className="group block py-5 -mx-3 px-3 rounded hover:bg-white/60 transition-colors"
-                >
-                  <h3 className="font-semibold text-lg group-hover:text-teal-600 transition-colors">
-                    {g.title}
-                  </h3>
-                  <p className="mt-1 text-foreground/70">{g.summary}</p>
-                </Link>
-              </li>
-            ))}
-          </ul>
+
+          <div className="rounded-3xl bg-sky-100 text-sky-700 p-5 sm:p-6 flex flex-col justify-between min-h-36">
+            <p className="font-serif text-4xl sm:text-5xl font-semibold">
+              {stats ? formatNumber(stats.evaluated) : "HAS"}
+            </p>
+            <p className="font-medium">évalués par la HAS</p>
+          </div>
+
+          <div className="rounded-3xl bg-sun-100 text-sun-700 p-5 sm:p-6 flex flex-col justify-between min-h-36">
+            <p className="font-serif text-2xl sm:text-3xl font-semibold leading-tight">
+              {stats?.updatedAt
+                ? formatDateFr(stats.updatedAt)
+                : "Chaque jour"}
+            </p>
+            <p className="font-medium">dernière mise à jour</p>
+          </div>
+
+          <div className="rounded-3xl bg-coral-100 text-coral-700 p-5 sm:p-6 flex flex-col justify-between min-h-36">
+            <p className="font-serif text-2xl sm:text-3xl font-semibold leading-tight">
+              Aucune publicité
+            </p>
+            <p className="font-medium">aucun EHPAD ne paie pour apparaître</p>
+          </div>
         </div>
       </section>
 
-      <section className="bg-sage-50 border-t border-sage-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14 sm:py-16">
-          <h2 className="text-3xl leading-tight">
-            Ce que ce site ne fait pas
-          </h2>
-          <p className="mt-4 text-foreground/80 leading-relaxed">
-            Il ne classe pas les établissements du meilleur au pire. La HAS
-            elle-même ne conçoit pas ses évaluations comme un palmarès : le
-            public accueilli, la taille et l&apos;organisation changent d&apos;un
-            EHPAD à l&apos;autre. Utilisez la note pour savoir quelles
-            questions poser, puis allez visiter.
-          </p>
-          <p className="mt-4 text-foreground/80 leading-relaxed">
-            Vous hésitez entre deux ou trois adresses ?{" "}
-            <Link
-              href="/comparer"
-              className="text-teal-600 underline underline-offset-2 hover:text-teal-700"
-            >
-              Mettez-les côte à côte
-            </Link>
-            , avec le coût mensuel estimé pour chacun.
-          </p>
-        </div>
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+        <h2 className="text-2xl sm:text-3xl">Chercher près de…</h2>
+        <ul className="mt-5 flex flex-wrap gap-3">
+          {CITIES.map((city, i) => (
+            <li key={city}>
+              <Link
+                href={`/search?q=${encodeURIComponent(city)}&radius=20`}
+                className={`inline-flex items-center min-h-[48px] rounded-full px-6 font-semibold transition-transform hover:-translate-y-0.5 ${CITY_TINTS[i % CITY_TINTS.length]}`}
+              >
+                {city}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+        <h2 className="text-2xl sm:text-3xl">Avant de choisir</h2>
+        <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {GUIDES.map((g, i) => (
+            <li key={g.slug}>
+              <Link
+                href={`/guides/${g.slug}`}
+                className={`group h-full min-h-36 rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-transform hover:-translate-y-0.5 ${GUIDE_TINTS[i % GUIDE_TINTS.length]}`}
+              >
+                <span className="font-serif text-xl font-semibold leading-snug">
+                  {g.title}
+                </span>
+                <span className="mt-4 font-semibold underline-offset-4 group-hover:underline">
+                  Lire le guide
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="border-t border-sage-200 bg-white">
+        <p className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-foreground/70">
+          Ce site ne classe pas les EHPAD : la HAS ne conçoit pas ses
+          évaluations comme un palmarès. Vous hésitez entre deux adresses ?{" "}
+          <Link
+            href="/comparer"
+            className="font-semibold text-teal-600 underline underline-offset-2 hover:text-teal-700"
+          >
+            Comparez-les côte à côte
+          </Link>
+          .
+        </p>
       </section>
     </>
   );
