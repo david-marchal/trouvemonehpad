@@ -381,7 +381,7 @@ function VirtualizedResultsList({
     setScrollTop(0);
   }, [results]);
 
-  const totalHeight = Math.max(results.length * RESULT_ROW_HEIGHT, viewportHeight);
+  const totalHeight = results.length * RESULT_ROW_HEIGHT;
   const startIndex = Math.max(
     Math.floor(scrollTop / RESULT_ROW_HEIGHT) - RESULT_OVERSCAN,
     0
@@ -392,7 +392,7 @@ function VirtualizedResultsList({
   const visibleResults = results.slice(startIndex, endIndex);
 
   return (
-    <div ref={containerRef} className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+    <div ref={containerRef} className="min-h-0 flex-1 px-4 pb-24 md:overflow-y-auto md:pb-4">
       <div className="relative" style={{ height: totalHeight }}>
         {visibleResults.map((result, index) => {
           const rowIndex = startIndex + index;
@@ -803,7 +803,7 @@ export default function SearchPageClient({
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
+    <div className="flex min-h-[calc(100vh-64px)] flex-col md:h-[calc(100vh-64px)] md:flex-row">
       <div className="flex w-full flex-col border-r border-sage-200 bg-background md:w-[55%]">
         <div className="border-b border-sage-200 bg-gradient-to-b from-warm-100 to-coral-50 p-4 pb-0">
           <form onSubmit={handleSubmit} className="relative">
