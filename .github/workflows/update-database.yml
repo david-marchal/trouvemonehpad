@@ -2,8 +2,8 @@ name: Mise à jour quotidienne de la base EHPAD
 
 on:
   schedule:
-    # Tous les jours à 3h17 UTC
-    - cron: '17 3 * * *'
+    # Tous les jours à 5h23 UTC (6h23 ou 7h23 à Paris)
+    - cron: '23 5 * * *'
   # Permet de lancer manuellement depuis GitHub Actions
   workflow_dispatch:
 
